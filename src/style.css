@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer base { 
+  .bg-stripes-yellow {
+    background-color: #111827;
+    background-image: linear-gradient(45deg,#eab308 10%,#111827 0,#111827 50%,#eab308 0,#eab308 60%,#111827 0,#111827);
+    background-size: 7.07px 7.07px;
+  }
+
+  .bg-dots-yellow {
+    background-color: #111827;
+    background-image: linear-gradient(45deg,#eab308 10%,#111827 0,#111827 75%,#eab308 0,#eab308 60%,#111827 0,#111827);
+    background-size: 7.07px 7.07px;
+  }
+
+}
+
+
+@layer components {
+  .hex {
+    aspect-ratio: 1/cos(30deg);
+    clip-path: polygon(50% -50%,100% 50%,50% 150%,0 50%);
+  }
+
+  .search-input {
+    @apply w-60 mb-5 block;
+  }
+}
+
+@layer utilities {
+  .scrollbar::-webkit-scrollbar {
+    width: 5px;
+    height: 10px;
+    margin-right: 1em;
+  }
+
+  .scrollbar::-webkit-scrollbar-track {
+    /* border-radius: 100vh; */
+    background: #111827;
+  }
+
+  .scrollbar::-webkit-scrollbar-thumb {
+    background: #eab308;
+    border: 3px solid #eab308;
+  }
+
+  .scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #eab308;
+  }
+
+}
