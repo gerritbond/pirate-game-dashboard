@@ -38,7 +38,7 @@ export const CharacterSelection = () => {
       id: 2,
       name: "Jerry",
       level: 12,
-      imageUrl: "/assets/scifi-silhouette.jpg",
+      imageUrl: "/assets/space-raccoon.jpg",
     },
     {
       id: 3,
