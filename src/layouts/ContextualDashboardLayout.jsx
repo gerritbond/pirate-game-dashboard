@@ -29,32 +29,32 @@ export const ActionButtons = [
   {
     name: "Roll d4",
     func: () => console.log(4),
-    tooltip: "Roll a d4 die",
+    tooltip: "Roll a d4",
   },
   {
     name: "Roll d6",
     func: () => console.log(6),
-    tooltip: "Roll a d6 die",
+    tooltip: "Roll a d6",
   },
   {
     name: "Roll d8",
     func: () => console.log(8),
-    tooltip: "Roll a d8 die",
+    tooltip: "Roll a d8",
   },
   {
     name: "Roll d10",
     func: () => console.log(10),
-    tooltip: "Roll a d10 die",
+    tooltip: "Roll a d10",
   },
   {
     name: "Roll d12",
     func: () => console.log(12),
-    tooltip: "Roll a d12 die",
+    tooltip: "Roll a d12",
   },
   {
     name: "Roll d20",
     func: () => console.log(20),
-    tooltip: "Roll a d20 die",
+    tooltip: "Roll a d20",
   },
 ];
 
