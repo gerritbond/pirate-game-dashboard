@@ -97,7 +97,7 @@ export const PageableCardsGrid = ({
         >
           Previous
         </button>
-        {Object.keys(centerButton) > 0 ? (
+        {centerButton?.name ? (
           <Link
             to={centerButton.path}
             className="col-span-2 border-2 text-center p-4 border-yellow-500 text-yellow-500 hover:text-gray-950 hover:bg-yellow-500 font-bold bg-gray-950 mx-3.5 mb-5 "
