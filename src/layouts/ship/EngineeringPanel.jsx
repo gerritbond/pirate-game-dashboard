@@ -23,7 +23,7 @@ export const EngineeringSummary = ({ shipDetails }) => {
 
   return (
     <div className="grid grid-cols-3">
-      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1 rounded-lg">
+      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1">
         <p
           className={
             "p-2 text-center text-2xl " +
@@ -36,7 +36,7 @@ export const EngineeringSummary = ({ shipDetails }) => {
         </p>
         <p className="text-l font-bold text-center">Ship Mass 🧱</p>
       </div>
-      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1 rounded-lg">
+      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1">
         <p
           className={
             "p-2 text-center text-2xl " +
@@ -49,7 +49,7 @@ export const EngineeringSummary = ({ shipDetails }) => {
         </p>
         <p className="text-l font-bold text-center">Power 🗲</p>
       </div>
-      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1 rounded-lg">
+      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1">
         <p
           className={
             "p-2 text-center text-2xl " +
@@ -90,7 +90,7 @@ export const EngineeringPanel = ({ shipDetails }) => {
       <EngineeringSummary shipDetails={shipDetails} />
       <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 mt-3">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-          <th scope="col" className="px-6 py-3 rounded-tl-lg">
+          <th scope="col" className="px-6 py-3">
             Name
           </th>
           <th scope="col" className="px-6 py-3">
@@ -99,7 +99,7 @@ export const EngineeringPanel = ({ shipDetails }) => {
           <th scope="col" className="px-6 py-3">
             Power Consumed
           </th>
-          <th scope="col" className="px-6 py-3 rounded-tr-lg">
+          <th scope="col" className="px-6 py-3">
             Quantity
           </th>
         </thead>

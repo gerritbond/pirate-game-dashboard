@@ -1,15 +1,17 @@
+import { formatCurrency } from "../../util/util";
+
 export const CombatSummary = ({ shipDetails }) => {
   return (
     <div className="grid grid-cols-3">
-      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1 rounded-lg">
+      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1">
         <p className={"p-2 text-center text-2xl "}>{shipDetails.armour}</p>
         <p className="text-l font-bold text-center">Armour</p>
       </div>
-      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1 rounded-lg">
+      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1">
         <p className={"p-2 text-center text-2xl "}>{shipDetails.speed}</p>
         <p className="text-l font-bold text-center">Speed</p>
       </div>
-      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1 rounded-lg">
+      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1">
         <p
           className={
             "p-2 text-center text-2xl " +
@@ -36,7 +38,7 @@ export const CombatPanel = ({ shipDetails }) => {
       <CombatSummary shipDetails={shipDetails} />
       <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 mt-3">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-          <th scope="col" className="px-6 py-3 rounded-tl-lg">
+          <th scope="col" className="px-6 py-3">
             Name
           </th>
           <th scope="col" className="px-6 py-3">
@@ -54,7 +56,7 @@ export const CombatPanel = ({ shipDetails }) => {
           <th scope="col" className="px-6 py-3">
             Qualities
           </th>
-          <th scope="col" className="px-6 py-3 rounded-tr-lg">
+          <th scope="col" className="px-6 py-3">
             Description
           </th>
         </thead>
@@ -76,7 +78,7 @@ export const CombatPanel = ({ shipDetails }) => {
                   {weapon.ammunition?.current} / {weapon.ammunition?.maximum}
                 </td>
                 <td className="px-6 py-3">
-                  ⦵ {weapon.ammunition?.replenishmentCost}
+                  {formatCurrency(weapon.ammunition?.replenishmentCost)}
                 </td>
                 <td className="px-6 py-3">{weapon.damage}</td>{" "}
                 <td className="px-6 py-3">{weapon.qualities}</td>

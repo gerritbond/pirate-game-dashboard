@@ -2,7 +2,7 @@ const ships = [
   {
     name: "The Rose",
     imageUrl: "/assets/starship.jpg",
-    registry: "XNT-381",
+    id: "XNT-381",
     captain: "Victor the Black",
     hull: "Corvette",
     class: "Frigate",
@@ -164,7 +164,7 @@ const ships = [
   {
     name: "The Rose",
     imageUrl: "/assets/fighter-starship.jpg",
-    registry: "XNT-382",
+    id: "XNT-382",
     captain: "Victor the Black",
     hull: "Corvette",
     class: "Frigate",
@@ -326,7 +326,7 @@ const ships = [
   {
     name: "Aardvark",
     imageUrl: "/assets/fighter-starship.jpg",
-    registry: "XNT-383",
+    id: "XNT-383",
     captain: "Victor the Black",
     hull: "Corvette",
     class: "Frigate",
@@ -488,7 +488,7 @@ const ships = [
   {
     name: "The Rose",
     imageUrl: "/assets/fighter-starship.jpg",
-    registry: "XNT-386",
+    id: "XNT-386",
     captain: "Victor the Black",
     location: {
       system: "Argon Vault",
@@ -650,7 +650,7 @@ const ships = [
   {
     name: "The Rose",
     imageUrl: "/assets/fighter-starship.jpg",
-    registry: "XNT-387",
+    id: "XNT-387",
     captain: "Victor the Black",
     hull: "Corvette",
     class: "Frigate",
@@ -812,7 +812,7 @@ const ships = [
   {
     name: "The Rose",
     imageUrl: "/assets/fighter-starship.jpg",
-    registry: "XNT-388",
+    id: "XNT-388",
     captain: "Victor the Black",
     hull: "Corvette",
     class: "Frigate",
@@ -975,7 +975,7 @@ const ships = [
   {
     name: "The Rose",
     imageUrl: "/assets/fighter-starship.jpg",
-    registry: "XNT-389",
+    id: "XNT-389",
     captain: "Victor the Black",
     hull: "Corvette",
     class: "Frigate",
@@ -1137,7 +1137,7 @@ const ships = [
   {
     name: "The Rose",
     imageUrl: "/assets/fighter-starship.jpg",
-    registry: "XNT-351",
+    id: "XNT-351",
     captain: "Victor the Black",
     hull: "Corvette",
     class: "Frigate",
@@ -1299,7 +1299,7 @@ const ships = [
   {
     name: "The Rose",
     imageUrl: "/assets/fighter-starship.jpg",
-    registry: "XNT-361",
+    id: "XNT-361",
     captain: "Victor the Black",
     hull: "Corvette",
     class: "Frigate",
@@ -1461,7 +1461,7 @@ const ships = [
   {
     name: "The Rose",
     imageUrl: "/assets/fighter-starship.jpg",
-    registry: "XNT-371",
+    id: "XNT-371",
     captain: "Victor the Black",
     hull: "Corvette",
     class: "Frigate",
@@ -1623,7 +1623,7 @@ const ships = [
   {
     name: "The Rose",
     imageUrl: "/assets/fighter-starship.jpg",
-    registry: "XNT-391",
+    id: "XNT-391",
     captain: "Victor the Black",
     hull: "Corvette",
     class: "Frigate",

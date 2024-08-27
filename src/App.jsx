@@ -4,11 +4,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import PiratesContext from "./contexts/PiratesContext";
 import UserContext from "./contexts/UserContext";
-import ShipDetailsLayout from "./layouts/ship/DetailsLayout";
 import FleetLayout from "./layouts/fleet/Fleet";
 import { CharacterSheetLayout } from "./layouts/character_sheet/CharacterSheet";
 import { CharacterSelection } from "./layouts/characters/CharacterSelection";
 import { CharacterCreate } from "./layouts/character_create/CharacterCreate";
+import { ShipLayout } from "./layouts/ship/ShipLayout";
 
 import NavBar from "./components/NavBar";
 import { HomeLayout } from "./layouts/home/HomeLayout";
@@ -42,10 +42,9 @@ const App = () => {
                   <Route path="/" element={<HomeLayout />} />
                   <Route path="/home" element={<HomeLayout />} />
                   <Route path="/fleet" element={<FleetLayout />} />
-                  <Route path="/ship/:shipId" element={<ShipDetailsLayout />} />
 
                   <Route path="/ships">
-                    <Route path=":shipId" element={<ShipDetailsLayout />} />
+                    <Route path=":shipId" element={<ShipLayout />} />
                     <Route path="fleet" element={<FleetLayout />} />
                   </Route>
 

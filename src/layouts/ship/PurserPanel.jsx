@@ -1,18 +1,20 @@
+import { formatCurrency } from "../../util/util";
+
 export const PurserSummary = ({ shipDetails }) => {
   return (
     <div className="grid grid-cols-3">
-      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1 rounded-lg">
+      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1">
         <p
           className={
             "p-2 text-center text-2xl " +
             (shipDetails.creditsOnShip > 0 ? "text-green-800" : "text-red-700")
           }
         >
-          ⦵ {shipDetails.creditsOnShip}
+          {formatCurrency(shipDetails.creditsOnShip)}
         </p>
         <p className="text-l font-bold text-center">Credits On Hand</p>
       </div>
-      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1 rounded-lg">
+      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1">
         <p
           className={
             "p-2 text-center text-2xl " +
@@ -21,11 +23,11 @@ export const PurserSummary = ({ shipDetails }) => {
               : "text-red-700")
           }
         >
-          ⦵ {shipDetails.costs?.maintenance}
+          {formatCurrency(shipDetails.costs?.maintenance)}
         </p>
         <p className="text-l font-bold text-center">Crew Salary / 6mo</p>
       </div>
-      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1 rounded-lg">
+      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1">
         <p className="p-2 text-center text-2xl">
           {shipDetails.cargo?.empty} /{" "}
           {shipDetails.cargo?.empty +
@@ -46,7 +48,7 @@ export const PurserPanel = ({ shipDetails }) => {
       <PurserSummary shipDetails={shipDetails} />
       <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 mt-3">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-          <th scope="col" className="px-6 py-3 rounded-tl-lg">
+          <th scope="col" className="px-6 py-3">
             Name
           </th>
           <th scope="col" className="px-6 py-3">
@@ -55,7 +57,7 @@ export const PurserPanel = ({ shipDetails }) => {
           <th scope="col" className="px-6 py-3">
             Quantity
           </th>
-          <th scope="col" className="px-6 py-3 rounded-tr-lg">
+          <th scope="col" className="px-6 py-3">
             Cost
           </th>
         </thead>
@@ -72,7 +74,7 @@ export const PurserPanel = ({ shipDetails }) => {
                 </th>
                 <td className="px-6 py-3">{item.description}</td>
                 <td className="px-6 py-3">{item.quantity}</td>
-                <td className="px-6 py-3">⦵ {item.cost}</td>
+                <td className="px-6 py-3">{formatCurrency(item.cost)}</td>
               </tr>
             ))}
         </tbody>

@@ -1,23 +1,24 @@
 import { useState } from "react";
 import { crew as crewDetails } from "../../fixtures/sample_crew";
 import { hirable as recruits } from "../../fixtures/sample_hirable";
+import { formatCurrency } from "../../util/util";
 
 export const QuartermasterSummary = ({ shipDetails }) => {
   return (
     <div className="grid grid-cols-3">
-      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1 rounded-lg">
+      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1">
         <p className={"p-2 text-center text-2xl"}>{shipDetails.captain}</p>
         <p className="text-l font-bold text-center">Captain</p>
       </div>
-      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1 rounded-lg">
+      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1">
         <p className="p-2 text-center text-2xl ">
           {shipDetails.crew?.current} / {shipDetails.crew?.maximum}
         </p>
         <p className="text-l font-bold text-center">Crew Compliment</p>
       </div>
-      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1 rounded-lg">
+      <div className="bg-gray-900 dark:text-gray-400 p-4 m-1">
         <p className="p-2 text-center text-2xl text-red-700">
-          ⦵ {shipDetails.bounty}
+          {formatCurrency(shipDetails.bounty)}
         </p>
         <p className="text-l font-bold text-center">Bounty on Ship</p>
       </div>
@@ -37,7 +38,7 @@ const QMPanelSwitch = ({ mode }) => {
     <div className="text-right">
       <button
         className={
-          "px-2 py-1 rounded-l-lg" +
+          "px-2 py-1" +
           (quartermasterPanelMode === QuarterMasterPanelModes.Recruitment
             ? " bg-green-600 text-white"
             : " bg-gray-800")
@@ -50,7 +51,7 @@ const QMPanelSwitch = ({ mode }) => {
       </button>
       <button
         className={
-          "px-2 py-1 rounded-r-lg" +
+          "px-2 py-1" +
           (quartermasterPanelMode === QuarterMasterPanelModes.Roster
             ? " bg-green-600 text-white"
             : " bg-gray-800")
@@ -86,7 +87,7 @@ export const QuartermasterPanel = ({ shipDetails }) => {
       <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 mt-3">
         {quartermasterPanelMode === QuarterMasterPanelModes.Roster ? (
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <th scope="col" className="px-6 py-3 rounded-tl-lg">
+            <th scope="col" className="px-6 py-3">
               Role
             </th>
             <th scope="col" className="px-6 py-3">
@@ -98,7 +99,7 @@ export const QuartermasterPanel = ({ shipDetails }) => {
             <th scope="col" className="px-6 py-3">
               Skills
             </th>
-            <th scope="col" className="px-6 py-3 rounded-tr-lg">
+            <th scope="col" className="px-6 py-3">
               <QMPanelSwitch
                 mode={[quartermasterPanelMode, setQuarterMasterPanelMode]}
               />
@@ -106,7 +107,7 @@ export const QuartermasterPanel = ({ shipDetails }) => {
           </thead>
         ) : (
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <th scope="col" className="px-6 py-3 rounded-tl-lg">
+            <th scope="col" className="px-6 py-3">
               Role
             </th>
             <th scope="col" className="px-6 py-3">
@@ -121,7 +122,7 @@ export const QuartermasterPanel = ({ shipDetails }) => {
             <th scope="col" className="px-6 py-3">
               Skills
             </th>
-            <th scope="col" className="px-6 py-3 rounded-tr-lg">
+            <th scope="col" className="px-6 py-3">
               <QMPanelSwitch
                 mode={[quartermasterPanelMode, setQuarterMasterPanelMode]}
               />
@@ -142,7 +143,7 @@ export const QuartermasterPanel = ({ shipDetails }) => {
                   <th scope="row" className="px-6 py-3">
                     {mate.role.title}
                   </th>
-                  <td className="px-6 py-3">⦵ {mate.payrate}</td>
+                  <td className="px-6 py-3">{formatCurrency(mate.payrate)}</td>
 
                   <td className="px-6 py-3">{`${mate.name.first} ${
                     mate.name.nickname ? `"${mate.name.nickname}" ` : ""
@@ -150,7 +151,7 @@ export const QuartermasterPanel = ({ shipDetails }) => {
                   <td className="px-6 py-3">{mate.skills.join(", ")}</td>
                   <td className="px-6 py-3 text-right">
                     <button
-                      className="text-white font-semibold font-mono bg-green-600 p-1 px-2 rounded-lg hover:bg-green-800"
+                      className="text-white font-semibold font-mono bg-green-600 p-1 px-2 hover:bg-green-800"
                       onClick={() => setDisplayTransferModal(true)}
                     >
                       Transfer
@@ -181,14 +182,16 @@ export const QuartermasterPanel = ({ shipDetails }) => {
                   <th scope="row" className="px-6 py-3">
                     {recruit.role.title}
                   </th>
-                  <td className="px-6 py-3">⦵ {recruit.role.experience}</td>
-                  <td className="px-6 py-3">⦵ {recruit.payrate}</td>
+                  <td className="px-6 py-3">{recruit.role.experience}</td>
+                  <td className="px-6 py-3">
+                    {formatCurrency(recruit.payrate)}
+                  </td>
 
                   <td className="px-6 py-3">{`${recruit.name.last}, ${recruit.name.first} `}</td>
                   <td className="px-6 py-3">{recruit.skills.join(", ")}</td>
                   <td className="px-6 py-3 text-right">
                     <button
-                      className="text-white font-semibold font-mono bg-green-600 p-1 px-2 rounded-lg hover:bg-green-800"
+                      className="text-white font-semibold font-mono bg-green-600 p-1 px-2 hover:bg-green-800"
                       onClick={() => hireRecruit(recruit.id)}
                     >
                       Recruit
