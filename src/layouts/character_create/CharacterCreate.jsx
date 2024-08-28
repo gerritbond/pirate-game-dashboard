@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 export const CharacterCreate = () => {
@@ -13,6 +13,21 @@ export const CharacterCreate = () => {
   const [rolledScores, setRolledScores] = useState([]);
   const [characterName, setCharacterName] = useState('');
   const [characterClass, setCharacterClass] = useState('');
+  const [rollCount, setRollCount] = useState(0);
+  const [teasingMessage, setTeasingMessage] = useState('');
+
+  const teasingMessages = [
+    "Hmm, trying your luck again?",
+    "Oh, a perfectionist, are we?",
+    "Third time's the charm... right?",
+    "You know the dice gods are watching, right?",
+    "Ahem... 'randomly' generated, you say?",
+    "Are you sure you're not looking for loaded dice?",
+    "If you roll any more, we might have to call the RNG police!",
+    "You dirty, dirty cheater!",
+    "Okay, now you're just being ridiculous!",
+    "STOP! STOP! The dice are already dead!"
+  ];
 
   const rollAttributes = () => {
     const rollAttribute = () => {
@@ -41,22 +56,69 @@ export const CharacterCreate = () => {
         Object.keys(prevAttributes).map(key => [key, { score: null, mod: null }])
       )
     );
+    setRollCount(prevCount => prevCount + 1);
+    
+    if (rollCount > 0) {
+      const messageIndex = Math.min(rollCount - 1, teasingMessages.length - 1);
+      setTeasingMessage(teasingMessages[messageIndex]);
+      setTimeout(() => setTeasingMessage(''), 3000); // Message disappears after 3 seconds
+    }
   };
 
   const onDragEnd = (result) => {
     if (!result.destination) return;
     const { source, destination } = result;
 
+    // Helper function to update attribute
+    const updateAttribute = (attr, score) => ({
+      score,
+      mod: score !== null ? Math.floor((score - 10) / 2) : null
+    });
+
+    // Dragging from rolled scores to an attribute
     if (source.droppableId === 'rolledScores' && destination.droppableId !== 'rolledScores') {
       const score = rolledScores[source.index];
       const attr = destination.droppableId;
 
-      setAttributes(prev => ({
-        ...prev,
-        [attr]: { score, mod: Math.floor((score - 10) / 2) }
-      }));
+      setAttributes(prev => {
+        const newAttributes = { ...prev };
+        // If the attribute already had a score, add it back to the rolled scores
+        if (newAttributes[attr].score !== null) {
+          setRolledScores(prevScores => [...prevScores, newAttributes[attr].score]);
+        }
+        newAttributes[attr] = updateAttribute(attr, score);
+        return newAttributes;
+      });
 
       setRolledScores(prev => prev.filter((_, index) => index !== source.index));
+    }
+    // Dragging between attributes
+    else if (source.droppableId !== 'rolledScores' && destination.droppableId !== 'rolledScores') {
+      const sourceAttr = source.droppableId;
+      const destAttr = destination.droppableId;
+
+      setAttributes(prev => {
+        const newAttributes = { ...prev };
+        const sourceScore = prev[sourceAttr].score;
+        const destScore = prev[destAttr].score;
+
+        newAttributes[sourceAttr] = updateAttribute(sourceAttr, destScore);
+        newAttributes[destAttr] = updateAttribute(destAttr, sourceScore);
+
+        return newAttributes;
+      });
+    }
+    // Dragging from attribute back to rolled scores
+    else if (source.droppableId !== 'rolledScores' && destination.droppableId === 'rolledScores') {
+      const attr = source.droppableId;
+      const score = attributes[attr].score;
+
+      setAttributes(prev => ({
+        ...prev,
+        [attr]: updateAttribute(attr, null)
+      }));
+
+      setRolledScores(prev => [...prev, score]);
     }
   };
 
@@ -64,6 +126,15 @@ export const CharacterCreate = () => {
     e.preventDefault();
     console.log('Character created:', { characterName, characterClass, attributes });
   };
+
+  const ScoreDisplay = ({ score, mod }) => (
+    <div className="flex items-center justify-center space-x-2">
+      <span className="text-2xl font-bold">{score}</span>
+      <span className="text-sm bg-gray-700 rounded-full w-6 h-6 flex items-center justify-center">
+        {mod >= 0 ? `+${mod}` : mod}
+      </span>
+    </div>
+  );
 
   return (
     <div className="character-create-container p-6 max-w-7xl mx-auto bg-gray-900 text-white rounded-lg shadow-lg">
@@ -101,10 +172,21 @@ export const CharacterCreate = () => {
                       {...provided.droppableProps}
                       className="flex flex-col bg-gray-800 p-2 rounded"
                     >
-                      <label className="text-lg font-semibold capitalize">{attr}:</label>
-                      <div className="mt-2 h-10 flex items-center justify-center border border-gray-700">
+                      <label className="text-lg font-semibold capitalize mb-2">{attr}</label>
+                      <div className="h-12 flex items-center justify-center border border-gray-700 rounded">
                         {score !== null ? (
-                          <span>{score} (Mod: {mod})</span>
+                          <Draggable draggableId={`attr-${attr}`} index={0}>
+                            {(provided) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className="w-full text-center cursor-move"
+                              >
+                                <ScoreDisplay score={score} mod={mod} />
+                              </div>
+                            )}
+                          </Draggable>
                         ) : (
                           <span className="text-gray-500">Drop score here</span>
                         )}
@@ -115,13 +197,20 @@ export const CharacterCreate = () => {
                 </Droppable>
               ))}
             </div>
-            <button
-              type="button"
-              onClick={rollAttributes}
-              className="w-full mt-4 p-3 bg-blue-500 text-white font-bold rounded hover:bg-blue-600"
-            >
-              Roll Attributes
-            </button>
+            <div className="mt-4 relative">
+              <button
+                type="button"
+                onClick={rollAttributes}
+                className="w-full p-3 bg-blue-500 text-white font-bold rounded hover:bg-blue-600"
+              >
+                Roll Attributes
+              </button>
+              {teasingMessage && (
+                <div className="absolute top-full left-0 right-0 mt-2 text-center text-yellow-300 font-bold animate-bounce">
+                  {teasingMessage}
+                </div>
+              )}
+            </div>
             <Droppable droppableId="rolledScores" direction="horizontal">
               {(provided) => (
                 <div
@@ -130,7 +219,7 @@ export const CharacterCreate = () => {
                   className="mt-4 flex flex-wrap gap-2"
                 >
                   {rolledScores.map((score, index) => (
-                    <Draggable key={index} draggableId={`score-${index}`} index={index}>
+                    <Draggable key={`score-${index}`} draggableId={`score-${index}`} index={index}>
                       {(provided) => (
                         <div
                           ref={provided.innerRef}
@@ -138,7 +227,7 @@ export const CharacterCreate = () => {
                           {...provided.dragHandleProps}
                           className="bg-gray-700 p-2 rounded cursor-move"
                         >
-                          {score}
+                          <ScoreDisplay score={score} mod={Math.floor((score - 10) / 2)} />
                         </div>
                       )}
                     </Draggable>
