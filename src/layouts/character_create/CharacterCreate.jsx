@@ -1,174 +1,161 @@
 import React, { useState } from 'react';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 export const CharacterCreate = () => {
-  const [name, setName] = useState('');
-  const [characterClass, setCharacterClass] = useState('');
-  const [strength, setStrength] = useState(10);
-  const [dexterity, setDexterity] = useState(10);
-  const [constitution, setConstitution] = useState(10);
-  const [intelligence, setIntelligence] = useState(10);
-  const [wisdom, setWisdom] = useState(10);
-  const [charisma, setCharisma] = useState(10);
-  const [skills, setSkills] = useState({
-    Administer: 0,
-    Connect: 0,
-    Exert: 0,
-    Fix: 0,
-    Heal: 0,
-    Lead: 0,
-    Notice: 0,
-    Perform: 0,
-    Pilot: 0,
-    Program: 0,
-    Shoot: 0,
-    Sneak: 0,
-    Survive: 0,
-    Talk: 0,
-    Trade: 0,
-    Work: 0,
+  const [attributes, setAttributes] = useState({
+    strength: { score: null, mod: null },
+    dexterity: { score: null, mod: null },
+    constitution: { score: null, mod: null },
+    intelligence: { score: null, mod: null },
+    wisdom: { score: null, mod: null },
+    charisma: { score: null, mod: null },
   });
-  const [portrait, setPortrait] = useState(null);
+  const [rolledScores, setRolledScores] = useState([]);
+  const [characterName, setCharacterName] = useState('');
+  const [characterClass, setCharacterClass] = useState('');
 
-  const handleSkillChange = (skill, value) => {
-    setSkills({
-      ...skills,
-      [skill]: value,
-    });
+  const rollAttributes = () => {
+    const rollAttribute = () => {
+      const rolls = [
+        Math.floor(Math.random() * 6) + 1,
+        Math.floor(Math.random() * 6) + 1,
+        Math.floor(Math.random() * 6) + 1,
+        Math.floor(Math.random() * 6) + 1,
+      ];
+      return rolls.reduce((a, b) => a + b, 0) - Math.min(...rolls);
+    };
+
+    const newScores = [
+      rollAttribute(),
+      rollAttribute(),
+      rollAttribute(),
+      rollAttribute(),
+      rollAttribute(),
+      rollAttribute(),
+    ];
+
+    setRolledScores(newScores);
+    // Reset attributes when rerolling
+    setAttributes(prevAttributes => 
+      Object.fromEntries(
+        Object.keys(prevAttributes).map(key => [key, { score: null, mod: null }])
+      )
+    );
+  };
+
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+    const { source, destination } = result;
+
+    if (source.droppableId === 'rolledScores' && destination.droppableId !== 'rolledScores') {
+      const score = rolledScores[source.index];
+      const attr = destination.droppableId;
+
+      setAttributes(prev => ({
+        ...prev,
+        [attr]: { score, mod: Math.floor((score - 10) / 2) }
+      }));
+
+      setRolledScores(prev => prev.filter((_, index) => index !== source.index));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const characterData = {
-      name,
-      characterClass,
-      attributes: {
-        strength,
-        dexterity,
-        constitution,
-        intelligence,
-        wisdom,
-        charisma,
-      },
-      skills,
-      portrait,
-    };
-    console.log(characterData);
-  };
-
-  const handlePortraitChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setPortrait(URL.createObjectURL(e.target.files[0]));
-    }
+    console.log('Character created:', { characterName, characterClass, attributes });
   };
 
   return (
-    <div className="character-create-container p-6 max-w-5xl mx-auto bg-gray-900 text-white rounded-lg shadow-lg">
-      <header className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-2">Create Your Character</h1>
-        <p className="text-lg">Fill in the details below to bring your character to life!</p>
-      </header>
-
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="character-info">
-          <label className="block mb-4">
-            <span className="text-lg font-semibold">Character Name:</span>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter character name"
-              className="w-full mt-2 p-2 rounded bg-gray-800 border border-gray-700"
-              required
-            />
-          </label>
-
-          <label className="block mb-4">
-            <span className="text-lg font-semibold">Class:</span>
-            <select
-              value={characterClass}
-              onChange={(e) => setCharacterClass(e.target.value)}
-              className="w-full mt-2 p-2 rounded bg-gray-800 border border-gray-700"
-              required
-            >
-              <option value="" disabled>Select Class</option>
-              <option value="Warrior">Warrior</option>
-              <option value="Expert">Expert</option>
-              <option value="Psychic">Psychic</option>
-              <option value="Adventurer">Adventurer</option>
-            </select>
-          </label>
+    <div className="character-create-container p-6 max-w-7xl mx-auto bg-gray-900 text-white rounded-lg shadow-lg">
+      <h1 className="text-2xl font-bold mb-4">Create Character</h1>
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-3">
+          <label className="block mb-2">Character Name</label>
+          <input
+            type="text"
+            value={characterName}
+            onChange={(e) => setCharacterName(e.target.value)}
+            className="w-full p-2 rounded bg-gray-800 border border-gray-700"
+            required
+          />
         </div>
-
-        <div className="attributes-section grid grid-cols-2 gap-4">
-          <h3 className="col-span-2 text-xl font-bold">Attributes</h3>
-          {[
-            { label: 'Strength', value: strength, setter: setStrength },
-            { label: 'Dexterity', value: dexterity, setter: setDexterity },
-            { label: 'Constitution', value: constitution, setter: setConstitution },
-            { label: 'Intelligence', value: intelligence, setter: setIntelligence },
-            { label: 'Wisdom', value: wisdom, setter: setWisdom },
-            { label: 'Charisma', value: charisma, setter: setCharisma },
-          ].map((attr, index) => (
-            <div key={index} className="flex flex-col">
-              <label className="text-lg font-semibold">{attr.label}:</label>
-              <input
-                type="number"
-                value={attr.value}
-                onChange={(e) => attr.setter(parseInt(e.target.value))}
-                min="3"
-                max="18"
-                className="w-full mt-2 p-2 rounded bg-gray-800 border border-gray-700"
-              />
+        <div className="lg:col-span-3">
+          <label className="block mb-2">Character Class</label>
+          <input
+            type="text"
+            value={characterClass}
+            onChange={(e) => setCharacterClass(e.target.value)}
+            className="w-full p-2 rounded bg-gray-800 border border-gray-700"
+            required
+          />
+        </div>
+        <DragDropContext onDragEnd={onDragEnd}>
+          <div className="attributes-and-roller-section lg:col-span-3">
+            <h3 className="text-xl font-bold mb-4">Attributes</h3>
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+              {Object.entries(attributes).map(([attr, { score, mod }]) => (
+                <Droppable key={attr} droppableId={attr}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className="flex flex-col bg-gray-800 p-2 rounded"
+                    >
+                      <label className="text-lg font-semibold capitalize">{attr}:</label>
+                      <div className="mt-2 h-10 flex items-center justify-center border border-gray-700">
+                        {score !== null ? (
+                          <span>{score} (Mod: {mod})</span>
+                        ) : (
+                          <span className="text-gray-500">Drop score here</span>
+                        )}
+                      </div>
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              ))}
             </div>
-          ))}
-        </div>
-
-        <div className="skills-section lg:col-span-2">
-          <h3 className="text-xl font-bold mb-4">Skills</h3>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {Object.keys(skills).map((skill) => (
-              <div key={skill} className="flex flex-col">
-                <label className="text-lg font-semibold">{skill}</label>
-                <input
-                  type="number"
-                  value={skills[skill]}
-                  onChange={(e) => handleSkillChange(skill, parseInt(e.target.value))}
-                  min="0"
-                  max="4"
-                  className="w-full mt-2 p-2 rounded bg-gray-800 border border-gray-700"
-                />
-              </div>
-            ))}
+            <button
+              type="button"
+              onClick={rollAttributes}
+              className="w-full mt-4 p-3 bg-blue-500 text-white font-bold rounded hover:bg-blue-600"
+            >
+              Roll Attributes
+            </button>
+            <Droppable droppableId="rolledScores" direction="horizontal">
+              {(provided) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className="mt-4 flex flex-wrap gap-2"
+                >
+                  {rolledScores.map((score, index) => (
+                    <Draggable key={index} draggableId={`score-${index}`} index={index}>
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className="bg-gray-700 p-2 rounded cursor-move"
+                        >
+                          {score}
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
           </div>
-        </div>
-
-        <div className="portrait-section lg:col-span-2">
-          <label className="block mb-4">
-            <span className="text-lg font-semibold">Character Portrait:</span>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handlePortraitChange}
-              className="w-full mt-2 p-2 rounded bg-gray-800 border border-gray-700"
-            />
-          </label>
-          {portrait && (
-            <img
-              src={portrait}
-              alt="Character Portrait"
-              className="w-32 h-32 mt-4 rounded-full border border-gray-700"
-            />
-          )}
-        </div>
-
-        <div className="review-submit-section lg:col-span-2 text-center mt-8">
-          <button type="submit" className="w-full lg:w-1/4 p-3 bg-yellow-500 text-black font-bold rounded hover:bg-yellow-600">
-            Create Character
-          </button>
-        </div>
+        </DragDropContext>
+        <button type="submit" className="lg:col-span-3 w-full p-3 bg-yellow-500 text-black font-bold rounded hover:bg-yellow-600">
+          Create Character
+        </button>
       </form>
     </div>
   );
 };
 
 export default CharacterCreate;
+
