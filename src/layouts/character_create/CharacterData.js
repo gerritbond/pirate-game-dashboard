@@ -40,10 +40,68 @@ export const backgrounds = [
 ];
 
 export const classes = [
-  { value: 'warrior', label: 'Warrior', description: 'Warriors are masters of combat and physical conflict.', primeAttribute: 'Strength or Dexterity' },
-  { value: 'expert', label: 'Expert', description: 'Experts are skilled professionals and capable generalists.', primeAttribute: 'Intelligence or Charisma' },
-  { value: 'psychic', label: 'Psychic', description: 'Psychics are humans gifted with metadimensional powers.', primeAttribute: 'Wisdom' },
-  { value: 'adventurer', label: 'Adventurer', description: 'Adventurers blend the abilities of other classes.', primeAttribute: 'Any two' },
+  {
+    value: 'warrior',
+    label: 'Warrior',
+    description: 'Warriors are masters of combat and physical conflict. They excel in all forms of warfare, able to use any weapon or armor. Their skills make them ideal for mercenaries, soldiers, and anyone who expects to face danger.',
+    primeAttribute: 'Strength or Dexterity',
+    uniqueMechanics: [
+      'Base Attack Bonus: +1',
+      'Hit Points: 1d6+2 per level',
+      'Bonus Skill: Any combat skill at level-0',
+      'Warrior\'s Luck: Once per scene, reroll a failed attack roll or saving throw'
+    ],
+    partialClassBenefits: [
+      'Base Attack Bonus: +1',
+      'Hit Points: +2 per level',
+      'Bonus Skill: Any combat skill at level-0'
+    ]
+  },
+  {
+    value: 'expert',
+    label: 'Expert',
+    description: 'Experts are skilled professionals and capable generalists. They have a wide range of skills and can become proficient in almost any non-combat and non-psychic ability. They make excellent technicians, pilots, and faces for a group.',
+    primeAttribute: 'Intelligence or Charisma',
+    uniqueMechanics: [
+      'Skill Points: 4 per level',
+      'Hit Points: 1d6 per level',
+      'Quick Learner: Learn new non-combat, non-psychic skills faster',
+      'Bonus Focus: Gain an additional non-combat, non-psychic focus'
+    ],
+    partialClassBenefits: [
+      'Skill Points: +2 per level',
+      'Quick Learner: Learn new non-combat, non-psychic skills faster'
+    ]
+  },
+  {
+    value: 'psychic',
+    label: 'Psychic',
+    description: 'Psychics are humans gifted with metadimensional powers. They can manipulate the world around them with their minds, performing feats that seem like magic to others. Their powers come at a cost, and overuse can be dangerous.',
+    primeAttribute: 'Wisdom',
+    uniqueMechanics: [
+      'Psychic Skills: Choose two psychic skills',
+      'Hit Points: 1d6 per level',
+      'Effort: Maximum Effort score equal to 1 + highest psychic skill + better of Wisdom or Constitution modifier',
+      'Psychic Techniques: Access to powerful psychic abilities'
+    ],
+    partialClassBenefits: [
+      'Psychic Skills: Choose one psychic skill',
+      'Effort: Maximum Effort score equal to 1 + highest psychic skill + better of Wisdom or Constitution modifier'
+    ]
+  },
+  {
+    value: 'adventurer',
+    label: 'Adventurer',
+    description: 'Adventurers blend the abilities of other classes. They can choose two partial class abilities from Warrior, Expert, or Psychic, allowing for versatile character builds that can fill multiple roles in a group.',
+    primeAttribute: 'Any two',
+    uniqueMechanics: [
+      'Partial Classes: Choose two partial class benefits from Warrior, Expert, or Psychic',
+      'Hit Points: 1d6 per level (1d6+2 if Partial Warrior is chosen)',
+      'Skill Points: 3 per level (+1 if Partial Expert is chosen)',
+      'Flexible: Can combine benefits from different classes'
+    ],
+    partialClassBenefits: 'Not applicable (Adventurer is a combination of partial classes)'
+  }
 ];
 
 export const skillTypes = {

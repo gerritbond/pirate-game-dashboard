@@ -27,6 +27,7 @@ export const CharacterCreate = () => {
   const [characterName, setCharacterName] = useState('');
   const [background, setBackground] = useState('');
   const [characterClass, setCharacterClass] = useState('');
+  const [partialClasses, setPartialClasses] = useState([]);
   const [rollCount, setRollCount] = useState(0);
   const [teasingMessage, setTeasingMessage] = useState('');
   const [rollMethod, setRollMethod] = useState('3d6');
@@ -59,6 +60,7 @@ export const CharacterCreate = () => {
   const [psychicSkills, setPsychicSkills] = useState([]);
 
   const [expandedSkill, setExpandedSkill] = useState(null);
+  const [expandedClass, setExpandedClass] = useState(null);
 
   const rollDie = () => Math.floor(Math.random() * 6) + 1;
 
@@ -397,18 +399,22 @@ export const CharacterCreate = () => {
     setCharacterName(jerryRhymes[randomIndex]);
   };
 
-  const handleClassChange = (e) => {
-    const newClass = e.target.value;
-    setCharacterClass(newClass);
-    
-    // Update skill points
-    const selectedClass = classes.find(cls => cls.value === newClass);
-    if (selectedClass) {
-      setSkillPoints(selectedClass.skillPoints);
-      
-      // Calculate hit points (assuming Constitution modifier is 0 for this example)
-      setHitPoints(selectedClass.hitDie);
+  const handleClassChange = (selectedClass) => {
+    setCharacterClass(selectedClass);
+    if (selectedClass !== 'adventurer') {
+      setPartialClasses([]);
     }
+  };
+
+  const handlePartialClassToggle = (partialClass) => {
+    setPartialClasses(prev => {
+      if (prev.includes(partialClass)) {
+        return prev.filter(cls => cls !== partialClass);
+      } else if (prev.length < 2) {
+        return [...prev, partialClass];
+      }
+      return prev;
+    });
   };
 
   const handleSkillLevelChange = (skillName, increment) => {
@@ -426,6 +432,23 @@ export const CharacterCreate = () => {
         }
       }
     }
+  };
+
+  const getClassColor = (classValue) => {
+    switch (classValue) {
+      case 'warrior':
+        return 'bg-red-600';
+      case 'expert':
+        return 'bg-blue-600';
+      case 'psychic':
+        return 'bg-purple-600';
+      default:
+        return 'bg-yellow-600';
+    }
+  };
+
+  const handleClassExpand = (classValue) => {
+    setExpandedClass(expandedClass === classValue ? null : classValue);
   };
 
   return (
@@ -475,22 +498,91 @@ export const CharacterCreate = () => {
               <p>Background Skills: {freeSkills.join(', ')}</p>
             </div>
           </div>
+        </div>
 
-          <div>
-            <label htmlFor="characterClass" className="block text-sm font-medium mb-1">Class</label>
-            <select
-              id="characterClass"
-              value={characterClass}
-              onChange={handleClassChange}
-              className="w-full bg-gray-700 text-white rounded px-3 py-2"
-            >
-              <option value="">Select a class</option>
-              {classes.map((cls) => (
-                <option key={cls.value} value={cls.value}>{cls.label}</option>
-              ))}
-            </select>
+        <div className="mt-6">
+          <h3 className="text-lg font-medium mb-2">Class</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {classes.map((cls) => (
+              <div
+                key={cls.value}
+                className={`
+                  rounded-lg overflow-hidden transition-all duration-300 ease-in-out
+                  ${characterClass === cls.value ? getClassColor(cls.value) : 'bg-gray-800'}
+                `}
+              >
+                <div 
+                  className="p-4 cursor-pointer"
+                  onClick={() => handleClassChange(cls.value)}
+                >
+                  <h4 className="text-xl font-bold mb-1">{cls.label}</h4>
+                  <p className="text-sm text-gray-300 mb-2">Prime: {cls.primeAttribute}</p>
+                  <p className="text-sm">{cls.description}</p>
+                </div>
+                <div 
+                  className="px-4 pb-2 cursor-pointer text-sm text-gray-400 hover:text-white"
+                  onClick={() => handleClassExpand(cls.value)}
+                >
+                  {expandedClass === cls.value ? 'Hide details' : 'Show details'}
+                </div>
+                {expandedClass === cls.value && (
+                  <div className="px-4 pb-4 text-sm">
+                    <h5 className="font-semibold mb-1">Unique Mechanics:</h5>
+                    <ul className="list-disc list-inside mb-2">
+                      {cls.uniqueMechanics.map((mechanic, index) => (
+                        <li key={index}>{mechanic}</li>
+                      ))}
+                    </ul>
+                    {cls.value !== 'adventurer' && (
+                      <>
+                        <h5 className="font-semibold mb-1">Partial Class Benefits:</h5>
+                        <ul className="list-disc list-inside">
+                          {cls.partialClassBenefits.map((benefit, index) => (
+                            <li key={index}>{benefit}</li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
+
+        {characterClass === 'adventurer' && (
+          <div className="mt-4">
+            <h3 className="text-lg font-medium mb-2">Partial Classes</h3>
+            <p className="text-sm text-gray-400 mb-2">Select two partial classes for your Adventurer:</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {classes.filter(cls => cls.value !== 'adventurer').map((cls) => (
+                <div
+                  key={cls.value}
+                  onClick={() => handlePartialClassToggle(cls.value)}
+                  className={`
+                    p-3 rounded cursor-pointer transition-colors
+                    ${partialClasses.includes(cls.value)
+                      ? getClassColor(cls.value)
+                      : 'bg-gray-700 hover:bg-gray-600'
+                    }
+                    ${partialClasses.length === 2 && !partialClasses.includes(cls.value)
+                      ? 'opacity-50 cursor-not-allowed'
+                      : ''
+                    }
+                  `}
+                >
+                  <h4 className="font-medium">{cls.label}</h4>
+                  <p className="text-xs mt-1 text-gray-300">Prime: {cls.primeAttribute}</p>
+                </div>
+              ))}
+            </div>
+            {partialClasses.length === 2 && (
+              <p className="text-sm text-green-400 mt-2">
+                You've selected: {partialClasses.map(cls => classes.find(c => c.value === cls).label).join(' and ')}
+              </p>
+            )}
+          </div>
+        )}
       </section>
 
       <section className="character-stats mb-8">
