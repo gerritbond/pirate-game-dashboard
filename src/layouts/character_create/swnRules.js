@@ -36,28 +36,66 @@ of 3 is a -2, 4—7 is a -1, 8—13 is no modifier,
     },
     {
       number: 3,
-      description: `Pick a background from the list on page 9, one
-that most closely reflects your hero's past experiences. You gain the skill listed under the
-background name at level-0, which equates to
-an ordinary working knowledge of it.`
+      description: `Choose a background from the list of twenty provided backgrounds. This represents your hero's past experiences and training before becoming an adventurer. You can roll randomly or pick one that suits your character concept. If none appeal, you can describe your hero's prior life to the GM and pick any three skills that fit that past.
+
+When you choose a background:
+1. You gain the free skill associated with the background at level-0.
+2. You then have two options:
+   a) Pick two other skills from the Learning table for your background, or
+   b) Make three random rolls divided between the Growth and Learning tables.
+
+If you're unsure, take the three "Quick Skills" listed for your background.`
     },
     {
       number: 4,
-      description: `Pick skills, you can choose two
-more skills from the Learning table for your
-background, with the exception of entries that
-say "Any Skill", which you may not pick. You
-cannot pick entries from the Growth table. If
-you're not sure what to pick, just take the "Quick
-Skills" listed for your background at level-0,
-which include your background's beginning skill.`
+      description: `Allocate skills based on your background choice:
+- The first time you receive a skill, you learn it at level-0 expertise.
+- The second time you receive a skill, it becomes level-1.
+- If you receive a skill a third time, you can instead choose any non-psychic skill in its place.
+- No starting character can begin with a skill level higher than level-1.
+- "Any Skill" picks allow you to choose any non-psychic skill.
+- "Any Combat" picks let you choose Stab, Shoot, or Punch.
+- You cannot raise psychic skills with "Any Skill" picks.
+
+For attribute improvements from the Growth table:
+- Attributes can be boosted up to a maximum of 18.
+- "Any Stat" bonuses can be applied to any attribute.
+- Physical attribute bonuses apply to Strength, Dexterity, or Constitution.
+- Mental attribute bonuses apply to Intelligence, Wisdom, or Charisma.
+- +2 bonuses can be split between two attributes of the appropriate type.`
     },
     {
       number: 6,
-      description: `Choose your class, representing those talents
-you have that are most relevant to an adventurer's lifestyle. If your hero isn't well-described
-by Warrior, Expert, or Psychic, you can choose
-Adventurer and mix your class abilities.`
+      description: `Choose your class, representing those talents you have that are most relevant to an adventurer's lifestyle. The available classes are:
+
+1. Expert: Exceptionally skilled in non-combat areas.
+   - Free level in a non-combat focus related to background
+   - Can reroll a failed skill check once per scene
+   - Bonus skill point for non-combat, non-psychic skills each level
+
+2. Psychic: Trained in psychic disciplines.
+   - Can learn psychic disciplines and techniques
+   - Choose two psychic skills as bonus skills
+   - Have an Effort score to fuel psychic abilities
+
+3. Warrior: Talented in combat and violence.
+   - Free level in a combat-related focus
+   - Can negate a hit or turn a miss into a hit once per scene
+   - Gain two extra maximum hit points per level
+
+4. Adventurer: Customizable mix of other classes.
+   - Choose two partial classes from Expert, Psychic, and Warrior
+   - Gain weaker versions of chosen class benefits
+
+Hit Points and Attack Bonus:
+- Expert/Psychic: 1d6 + Con modifier (min 1)
+- Warrior: 1d6+2 + Con modifier (min 1)
+- Adventurer: 1d6 + Con modifier (min 1), +2 if Partial Warrior
+
+Attack Bonus:
+- Expert/Psychic: Half character level (rounded down)
+- Warrior: Equal to character level
+- Adventurer: Half character level, +1 at 1st and 5th if Partial Warrior`
     },
     {
       number: 7,
@@ -183,3 +221,45 @@ greatly for their aims are rarely fun to play.`
 };
 
 // You can add more SWN rules or constants here as needed
+
+export const classDetails = {
+  expert: {
+    description: `Experts are exceptionally good at useful skills. They're the best at non-combat skills and gain more of them than other classes. Once per scene, an Expert can reroll a failed skill check, taking the new result if it's better.`,
+    abilities: [
+      "Free level in a non-combat focus related to background",
+      "Reroll a failed skill check once per scene",
+      "Bonus skill point for non-combat, non-psychic skills each level"
+    ],
+    hitPoints: "1d6 + Constitution modifier (minimum 1)",
+    attackBonus: "Half character level, rounded down"
+  },
+  psychic: {
+    description: `Psychics have received training in controlling their Metadimensional Extroversion Syndrome (MES), allowing them to wield psychic powers. They are rare in the general population but capable of feats impossible for ordinary individuals.`,
+    abilities: [
+      "Can learn psychic disciplines and techniques",
+      "Choose two psychic skills as bonus skills",
+      "Have an Effort score to fuel psychic abilities"
+    ],
+    hitPoints: "1d6 + Constitution modifier (minimum 1)",
+    attackBonus: "Half character level, rounded down"
+  },
+  warrior: {
+    description: `Warriors have a real talent for inflicting mayhem. They are gifted in combat and have abilities that make them exceptionally dangerous in fights.`,
+    abilities: [
+      "Free level in a combat-related focus",
+      "Can negate a hit or turn a miss into a hit once per scene",
+      "Gain two extra maximum hit points per level"
+    ],
+    hitPoints: "1d6+2 + Constitution modifier (minimum 1)",
+    attackBonus: "Equal to character level"
+  },
+  adventurer: {
+    description: `The Adventurer class is for heroes who don't fit neatly into the other categories. It allows for customization by combining aspects of other classes.`,
+    abilities: [
+      "Choose two partial classes from Expert, Psychic, and Warrior",
+      "Gain weaker versions of chosen class benefits"
+    ],
+    hitPoints: "1d6 + Constitution modifier (minimum 1), +2 if Partial Warrior",
+    attackBonus: "Half character level, +1 at 1st and 5th level if Partial Warrior"
+  }
+};
