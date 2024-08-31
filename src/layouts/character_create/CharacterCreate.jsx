@@ -35,9 +35,9 @@ export const CharacterCreate = () => {
   const [adventurerClasses, setAdventurerClasses] = useState([]);
 
   const [skills, setSkills] = useState({
-    administer: 0, connect: 0, exert: 0, fix: 0, heal: 0, know: 0, lead: 0,
-    notice: 0, perform: 0, pilot: 0, program: 0, punch: 0, shoot: 0, sneak: 0,
-    survive: 0, talk: 0, trade: 0, work: 0
+    administer: -1, connect: -1, exert: -1, fix: -1, heal: -1, know: -1, lead: -1,
+    notice: -1, perform: -1, pilot: -1, program: -1, punch: -1, shoot: -1, sneak: -1,
+    survive: -1, talk: -1, trade: -1, work: -1
   });
   const [skillPoints, setSkillPoints] = useState(null);
   const [skillPointsMessage, setSkillPointsMessage] = useState('');
@@ -47,6 +47,7 @@ export const CharacterCreate = () => {
   const [availableFociCount, setAvailableFociCount] = useState(1);
 
   const [hitPoints, setHitPoints] = useState(null);
+  const [attackBonus, setAttackBonus] = useState(null);
   const [savingThrows, setSavingThrows] = useState({
     physical: null,
     evasion: null,
@@ -158,7 +159,7 @@ export const CharacterCreate = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Character created:', { characterName, background, characterClass, attributes });
+    console.log('Character created:', { characterName, background, characterClass, attributes, skills });
   };
 
   const ScoreDisplay = ({ score, mod }) => (
@@ -170,13 +171,59 @@ export const CharacterCreate = () => {
     </div>
   );
 
+  const handleBackgroundChange = (e) => {
+    const newBackground = e.target.value;
+    setBackground(newBackground);
+    
+    const selectedBackground = backgrounds.find(bg => bg.value === newBackground);
+    if (selectedBackground) {
+      const backgroundSkills = Array.isArray(selectedBackground.skills) 
+        ? selectedBackground.skills 
+        : [selectedBackground.skills];
+
+      setBackgroundSkill({ name: backgroundSkills[0], level: 0 });
+      
+      // Handle free skills
+      const freeSkillsList = backgroundSkills.filter(skill => 
+        skill !== specialSkillCategories.ANY_COMBAT &&
+        skill !== specialSkillCategories.ANY_PSYCHIC &&
+        skill !== specialSkillCategories.ANY_SKILL
+      );
+      
+      setFreeSkills(freeSkillsList);
+      
+      // Reset additional skills
+      setAdditionalSkills([]);
+      
+      // Update skills object
+      const newSkills = { ...skills };
+      freeSkillsList.forEach(skill => {
+        newSkills[skill.toLowerCase()] = -1; // Set to untrained
+      });
+      setSkills(newSkills);
+    } else {
+      // Reset if no background is selected
+      setBackgroundSkill(null);
+      setFreeSkills([]);
+      setAdditionalSkills([]);
+    }
+  };
+
   useEffect(() => {
     if (background) {
       const selectedBackground = backgrounds.find(bg => bg.value === background);
       if (selectedBackground) {
+        const backgroundSkills = Array.isArray(selectedBackground.skills) 
+          ? selectedBackground.skills 
+          : [selectedBackground.skills];
+
         const newFreeSkillPoints = {};
-        selectedBackground.skills.forEach(skill => {
-          newFreeSkillPoints[skill] = 1;
+        backgroundSkills.forEach(skill => {
+          if (skill !== specialSkillCategories.ANY_COMBAT &&
+              skill !== specialSkillCategories.ANY_PSYCHIC &&
+              skill !== specialSkillCategories.ANY_SKILL) {
+            newFreeSkillPoints[skill] = 1;
+          }
         });
         setFreeSkillPoints(newFreeSkillPoints);
       }
@@ -203,37 +250,6 @@ export const CharacterCreate = () => {
       setSkillPoints(3);
     }
   }, [characterClass]);
-
-  const handleBackgroundChange = (e) => {
-    const newBackground = e.target.value;
-    setBackground(newBackground);
-    
-    const selectedBackground = backgrounds.find(bg => bg.value === newBackground);
-    if (selectedBackground) {
-      setBackgroundSkill({ name: selectedBackground.skill, level: 0 });
-      setFreeSkills(selectedBackground.skills.filter(skill => 
-        skill !== specialSkillCategories.ANY_COMBAT &&
-        skill !== specialSkillCategories.ANY_PSYCHIC &&
-        skill !== specialSkillCategories.ANY_SKILL
-      ));
-      
-      // Reset additional skills
-      setAdditionalSkills([]);
-      
-      // Update skills object
-      const newSkills = { ...skills };
-      selectedBackground.skills.forEach(skill => {
-        if (skill === specialSkillCategories.ANY_COMBAT ||
-            skill === specialSkillCategories.ANY_PSYCHIC ||
-            skill === specialSkillCategories.ANY_SKILL) {
-          // These will be handled separately
-        } else {
-          newSkills[skill.toLowerCase()] = 0; // Set to level-0
-        }
-      });
-      setSkills(newSkills);
-    }
-  };
 
   const handleAdditionalSkillSelection = (skill) => {
     if (additionalSkills.length < 2) {
@@ -286,13 +302,13 @@ export const CharacterCreate = () => {
     // Add points from foci if applicable
     selectedFoci.forEach(focusName => {
       const focus = fociList.find(f => f.name === focusName);
-      if (focus && focus.levels[0].skillPoints) {
+      if (focus && focus.levels && focus.levels[0] && focus.levels[0].skillPoints) {
         totalPoints += focus.levels[0].skillPoints;
       }
     });
 
     // Subtract points for skills already selected
-    totalPoints -= Object.values(skills).reduce((sum, level) => sum + level, 0);
+    totalPoints -= Object.values(skills).reduce((sum, level) => sum + (level === -1 ? 0 : level), 0);
 
     setSkillPoints(totalPoints);
     setSkillPointsMessage(`You have ${totalPoints} skill points to distribute.`);
@@ -311,18 +327,19 @@ export const CharacterCreate = () => {
     }
   }, [characterClass]);
 
-  const handleSkillChange = (skill, increment) => {
-    const currentValue = skills[skill.toLowerCase()];
-    const newValue = currentValue + increment;
-    if (newValue >= 0 && newValue <= 1) {
-      if (increment > 0 && !freeSkills.includes(skill) && skillPoints <= 0) {
+  const handleSkillLevelChange = (skillName, increment) => {
+    const currentLevel = skills[skillName.toLowerCase()];
+    const newLevel = currentLevel + increment;
+
+    if (newLevel >= -1 && newLevel <= 1) {
+      if (increment > 0 && !freeSkills.includes(skillName) && skillPoints <= 0) {
         return; // Can't increase if no skill points left
       }
       setSkills(prevSkills => ({
         ...prevSkills,
-        [skill.toLowerCase()]: newValue
+        [skillName.toLowerCase()]: newLevel
       }));
-      if (!freeSkills.includes(skill)) {
+      if (!freeSkills.includes(skillName)) {
         setSkillPoints(prevPoints => prevPoints - increment);
       }
     }
@@ -335,7 +352,7 @@ export const CharacterCreate = () => {
       const focus = fociList.find(f => f.name === focusName);
       if (focus.skillImpact) {
         Object.entries(focus.skillImpact).forEach(([skill, value]) => {
-          setSkills(prev => ({...prev, [skill]: Math.max(0, prev[skill] - value)}));
+          setSkills(prev => ({...prev, [skill]: Math.max(-1, prev[skill] - value)}));
         });
       }
     } else if (selectedFoci.length < availableFociCount) {
@@ -358,40 +375,57 @@ export const CharacterCreate = () => {
 
   useEffect(() => {
     // Calculate hit points
-    if (characterClass && attributes.constitution && !isNaN(attributes.constitution)) {
-      const conMod = Math.floor((attributes.constitution - 10) / 2);
-      let baseHP = 0;
-      switch (characterClass) {
-        case 'warrior':
-          baseHP = 6;
-          break;
-        case 'expert':
-        case 'adventurer':
-          baseHP = 4;
-          break;
-        case 'psychic':
-          baseHP = 2;
-          break;
-        default:
-          baseHP = null;
+    if (characterClass && attributes.constitution && !isNaN(attributes.constitution.score)) {
+      const selectedClass = classes.find(c => c.value === characterClass);
+      if (selectedClass) {
+        const conMod = attributes.constitution.mod;
+        const diceRoll = Math.floor(Math.random() * 6) + 1; // Simulating 1d6 roll
+        let baseHP = diceRoll + selectedClass.hitPoints.bonus + conMod;
+        baseHP = Math.max(1, baseHP); // Ensure minimum of 1 HP
+        
+        if (characterClass === 'adventurer' && partialClasses.includes('warrior')) {
+          baseHP += 2;
+        }
+        
+        setHitPoints(baseHP);
       }
-      setHitPoints(baseHP !== null ? Math.max(1, baseHP + conMod) : null);
     } else {
       setHitPoints(null);
     }
 
+    // Calculate attack bonus
+    if (characterClass) {
+      const selectedClass = classes.find(c => c.value === characterClass);
+      if (selectedClass) {
+        let attackBonus = 0;
+        if (selectedClass.attackBonus.value === 'full') {
+          attackBonus = 1; // At first level
+        } else if (selectedClass.attackBonus.value === 'half') {
+          attackBonus = 0; // At first level, rounded down
+        }
+        
+        if (characterClass === 'adventurer' && partialClasses.includes('warrior')) {
+          attackBonus += 1;
+        }
+        
+        setAttackBonus(attackBonus);
+      }
+    } else {
+      setAttackBonus(null);
+    }
+
     // Calculate saving throws
     const newSavingThrows = {
-      physical: calculateSavingThrow(attributes.constitution),
-      evasion: calculateSavingThrow(attributes.dexterity),
-      mental: calculateSavingThrow(attributes.wisdom),
-      luck: attributes.charisma && attributes.wisdom && !isNaN(attributes.charisma) && !isNaN(attributes.wisdom)
-        ? 15 - Math.floor((attributes.charisma + attributes.wisdom) / 6)
+      physical: calculateSavingThrow(attributes.constitution.score),
+      evasion: calculateSavingThrow(attributes.dexterity.score),
+      mental: calculateSavingThrow(attributes.wisdom.score),
+      luck: attributes.charisma.score && attributes.wisdom.score && !isNaN(attributes.charisma.score) && !isNaN(attributes.wisdom.score)
+        ? 15 - Math.floor((attributes.charisma.score + attributes.wisdom.score) / 6)
         : null
     };
     setSavingThrows(newSavingThrows);
 
-  }, [characterClass, attributes]);
+  }, [characterClass, attributes, partialClasses]);
 
   const randomizeName = (e) => {
     e.preventDefault(); // Prevent form submission
@@ -415,23 +449,6 @@ export const CharacterCreate = () => {
       }
       return prev;
     });
-  };
-
-  const handleSkillLevelChange = (skillName, increment) => {
-    const currentLevel = skills[skillName.toLowerCase()];
-    const newLevel = currentLevel + increment;
-
-    if (newLevel >= 0 && newLevel <= 1) {
-      const isFreeLevelUp = freeSkills.includes(skillName) && currentLevel === 0 && increment === 1;
-      const isFreeLevelDown = freeSkills.includes(skillName) && currentLevel === 1 && increment === -1;
-
-      if (isFreeLevelUp || isFreeLevelDown || (skillPoints > 0 && increment === 1) || increment === -1) {
-        setSkills(prev => ({...prev, [skillName.toLowerCase()]: newLevel}));
-        if (!isFreeLevelUp && !isFreeLevelDown) {
-          setSkillPoints(prev => prev - increment);
-        }
-      }
-    }
   };
 
   const getClassColor = (classValue) => {
@@ -495,7 +512,9 @@ export const CharacterCreate = () => {
                   <option key={bg.value} value={bg.value}>{bg.label}</option>
                 ))}
               </select>
-              <p>Background Skills: {freeSkills.join(', ')}</p>
+              {background && (
+                <p>Background Skill: {freeSkills.join(', ') || 'None'}</p>
+              )}
             </div>
           </div>
         </div>
@@ -590,212 +609,209 @@ export const CharacterCreate = () => {
         
       </section>
 
-      <form className="grid grid-cols-1 gap-6">
-        <section className="attributes">
-          <h2 className="text-2xl font-semibold mb-4">Attributes</h2>
-          <DragDropContext onDragEnd={onDragEnd}>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {Object.entries(attributes).map(([attr, { score, mod }]) => (
-                <Droppable key={attr} droppableId={attr}>
-                  {(provided) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className="flex flex-col bg-gray-800 p-2 rounded"
-                    >
-                      <label className="text-lg font-semibold capitalize mb-2">{attr}</label>
-                      <div className="h-12 flex items-center justify-center border border-gray-700 rounded">
-                        {score !== null ? (
-                          <Draggable draggableId={`attr-${attr}`} index={0}>
-                            {(provided) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className="w-full text-center cursor-move"
-                              >
-                                <ScoreDisplay score={score} mod={mod} />
-                              </div>
-                            )}
-                          </Draggable>
-                        ) : (
-                          <span className="text-gray-500">Drop score here</span>
-                        )}
-                      </div>
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              ))}
-            </div>
-            <div className="mt-4 relative">
-              <div className="flex justify-between items-center mb-2">
-                <select
-                  value={rollMethod}
-                  onChange={(e) => setRollMethod(e.target.value)}
-                  className="p-2 rounded bg-gray-800 border border-gray-700"
-                >
-                  <option value="3d6">3d6 (Standard)</option>
-                  <option value="4d6">4d6 drop lowest (Optional)</option>
-                </select>
-                <button
-                  type="button"
-                  onClick={rollAttributes}
-                  className="p-3 bg-blue-500 text-white font-bold rounded hover:bg-blue-600"
-                >
-                  Roll Attributes
-                </button>
-              </div>
-              {teasingMessage && (
-                <div className="absolute top-full left-0 right-0 mt-2 text-center text-yellow-300 font-bold animate-bounce">
-                  {teasingMessage}
-                </div>
-              )}
-            </div>
-            <Droppable droppableId="rolledScores" direction="horizontal">
-              {(provided) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  className="mt-4 flex flex-wrap gap-2"
-                >
-                  {rolledScores.map((score, index) => (
-                    <Draggable key={`score-${index}`} draggableId={`score-${index}`} index={index}>
-                      {(provided) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          className="bg-gray-700 p-2 rounded cursor-move"
-                        >
-                          <ScoreDisplay score={score} mod={Math.floor((score - 10) / 2)} />
-                        </div>
+      <section className="attributes mb-8">
+        <h2 className="text-2xl font-semibold mb-4">Attributes</h2>
+        <DragDropContext onDragEnd={onDragEnd}>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {Object.entries(attributes).map(([attr, { score, mod }]) => (
+              <Droppable key={attr} droppableId={attr}>
+                {(provided) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className="flex flex-col bg-gray-800 p-2 rounded"
+                  >
+                    <label className="text-lg font-semibold capitalize mb-2">{attr}</label>
+                    <div className="h-12 flex items-center justify-center border border-gray-700 rounded">
+                      {score !== null ? (
+                        <Draggable draggableId={`attr-${attr}`} index={0}>
+                          {(provided) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className="w-full text-center cursor-move"
+                            >
+                              <ScoreDisplay score={score} mod={mod} />
+                            </div>
+                          )}
+                        </Draggable>
+                      ) : (
+                        <span className="text-gray-500">Drop score here</span>
                       )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-        </section>
-
-        <section className="foci mt-8">
-          <h2 className="text-2xl font-semibold mb-4">Foci</h2>
-          <p className="mb-4">Select up to {availableFociCount} {availableFociCount === 1 ? 'focus' : 'foci'}:</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {fociList.map(focus => (
-              <div 
-                key={focus.name} 
-                className={`bg-gray-800 p-3 rounded cursor-pointer ${selectedFoci.includes(focus.name) ? 'border-2 border-yellow-500' : ''}`}
-                onClick={() => handleFocusSelection(focus.name)}
-              >
-                <h3 className="font-medium mb-2">{focus.name}</h3>
-                <p className="text-sm text-gray-400 mb-2">{focus.description}</p>
-                <p className="text-sm text-green-400">Level 1: {focus.level1Benefit}</p>
-                <p className="text-sm text-blue-400">Level 2: {focus.level2Benefit}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="skills mt-8">
-          <h2 className="text-2xl font-semibold mb-4">Skills</h2>
-          {skillPoints !== null ? (
-            <p className="mb-4">Skill Points Remaining: <span className="text-yellow-500 font-bold">{skillPoints}</span></p>
-          ) : (
-            <p className="mb-4 text-yellow-500">{skillPointsMessage}</p>
-          )}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {skillList.map(skill => (
-              <div key={skill.name} className="bg-gray-800 p-3 rounded">
-                <div className="flex items-center justify-between mb-2">
-                  <span className={`font-medium ${freeSkills.includes(skill.name) ? 'text-yellow-500' : ''}`}>
-                    {skill.name}
-                    {freeSkills.includes(skill.name) && ' (Free)'}
-                  </span>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handleSkillLevelChange(skill.name, -1)}
-                      className="w-6 h-6 bg-red-500 text-white rounded flex items-center justify-center"
-                      disabled={skills[skill.name.toLowerCase()] === 0 || freeSkills.includes(skill.name)}
-                    >
-                      -
-                    </button>
-                    <span className="w-8 text-center bg-gray-700">
-                      {skills[skill.name.toLowerCase()] || 0}
-                    </span>
-                    <button
-                      onClick={() => handleSkillLevelChange(skill.name, 1)}
-                      className="w-6 h-6 bg-green-500 text-white rounded flex items-center justify-center"
-                      disabled={skills[skill.name.toLowerCase()] === 1 || skillPoints === 0}
-                    >
-                      +
-                    </button>
+                    </div>
+                    {provided.placeholder}
                   </div>
-                </div>
-                <button 
-                  onClick={() => setExpandedSkill(expandedSkill === skill.name ? null : skill.name)}
-                  className="text-sm text-gray-400 hover:text-white focus:outline-none"
-                >
-                  {expandedSkill === skill.name ? 'Hide description' : 'Show description'}
-                </button>
-                {expandedSkill === skill.name && (
-                  <p className="text-sm text-gray-400 mt-2">{skill.description}</p>
                 )}
-              </div>
+              </Droppable>
             ))}
           </div>
-        </section>
-
-        <section className="hit-points-and-saves mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="hit-points bg-gray-800 p-4 rounded">
-            <h2 className="text-2xl font-semibold mb-4">Hit Points</h2>
-            <div className="text-4xl font-bold text-center text-red-500">
-              {hitPoints !== null ? hitPoints : (
-                <span className="text-lg text-gray-400">
-                  Select class and set Constitution
-                </span>
-              )}
+          <div className="mt-4 relative">
+            <div className="flex justify-between items-center mb-2">
+              <select
+                value={rollMethod}
+                onChange={(e) => setRollMethod(e.target.value)}
+                className="p-2 rounded bg-gray-800 border border-gray-700"
+              >
+                <option value="3d6">3d6 (Standard)</option>
+                <option value="4d6">4d6 drop lowest (Optional)</option>
+              </select>
+              <button
+                type="button"
+                onClick={rollAttributes}
+                className="p-3 bg-blue-500 text-white font-bold rounded hover:bg-blue-600"
+              >
+                Roll Attributes
+              </button>
             </div>
+            {teasingMessage && (
+              <div className="absolute top-full left-0 right-0 mt-2 text-center text-yellow-300 font-bold animate-bounce">
+                {teasingMessage}
+              </div>
+            )}
           </div>
-          
-          <div className="saving-throws bg-gray-800 p-4 rounded">
-            <h2 className="text-2xl font-semibold mb-4">Saving Throws</h2>
-            <div className="grid grid-cols-2 gap-4">
-              {Object.entries(savingThrows).map(([save, value]) => (
-                <div key={save} className="text-center">
-                  <div className="text-lg font-medium capitalize">{save}</div>
-                  <div className="text-2xl font-bold text-blue-500">
-                    {value !== null ? value : (
-                      <span className="text-base text-gray-400">
-                        Set {save === 'physical' ? 'CON' : 
-                             save === 'evasion' ? 'DEX' : 
-                             save === 'mental' ? 'WIS' : 
-                             'WIS & CHA'}
-                      </span>
+          <Droppable droppableId="rolledScores" direction="horizontal">
+            {(provided) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className="mt-4 flex flex-wrap gap-2"
+              >
+                {rolledScores.map((score, index) => (
+                  <Draggable key={`score-${index}`} draggableId={`score-${index}`} index={index}>
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        className="bg-gray-700 p-2 rounded cursor-move"
+                      >
+                        <ScoreDisplay score={score} mod={Math.floor((score - 10) / 2)} />
+                      </div>
                     )}
-                  </div>
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+      </section>
+
+      <section className="foci mb-8">
+        <h2 className="text-2xl font-semibold mb-4">Foci</h2>
+        <p className="mb-4">Select {availableFociCount} {availableFociCount === 1 ? 'focus' : 'foci'}:</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {fociList.map(focus => (
+            <div 
+              key={focus.name} 
+              className={`bg-gray-800 p-3 rounded cursor-pointer ${selectedFoci.includes(focus.name) ? 'border-2 border-yellow-500' : ''}`}
+              onClick={() => handleFocusSelection(focus.name)}
+            >
+              <h3 className="font-medium mb-2">{focus.name}</h3>
+              <p className="text-sm text-gray-400 mb-2">{focus.description}</p>
+              {focus.levels.map((level, index) => (
+                <div key={index} className="text-sm">
+                  <p>Level {index + 1}: {level.benefits.join(', ')}</p>
                 </div>
               ))}
             </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="hit-points-and-saves mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="hit-points bg-gray-800 p-4 rounded">
+          <h2 className="text-2xl font-semibold mb-4">Hit Points</h2>
+          <div className="text-4xl font-bold text-center text-red-500">
+            {hitPoints !== null ? hitPoints : (
+              <span className="text-lg text-gray-400">
+                Select class and set Constitution
+              </span>
+            )}
           </div>
-        </section>
+        </div>
+        
+        <div className="saving-throws bg-gray-800 p-4 rounded">
+          <h2 className="text-2xl font-semibold mb-4">Saving Throws</h2>
+          <div className="grid grid-cols-2 gap-4">
+            {Object.entries(savingThrows).map(([save, value]) => (
+              <div key={save} className="text-center">
+                <div className="text-lg font-medium capitalize">{save}</div>
+                <div className="text-2xl font-bold text-blue-500">
+                  {value !== null ? value : (
+                    <span className="text-base text-gray-400">
+                      Set {save === 'physical' ? 'CON' : 
+                           save === 'evasion' ? 'DEX' : 
+                           save === 'mental' ? 'WIS' : 
+                           'WIS & CHA'}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-        <section className="equipment">
-          <h2 className="text-2xl font-semibold mb-4">Equipment</h2>
-          {/* Equipment selection and customization */}
-        </section>
+      <section className="skills mb-8">
+        <h2 className="text-2xl font-semibold mb-4">Skills</h2>
+        {skillPoints !== null ? (
+          <p className="mb-4">Skill Points Remaining: <span className="text-yellow-500 font-bold">{skillPoints}</span></p>
+        ) : (
+          <p className="mb-4 text-yellow-500">{skillPointsMessage}</p>
+        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {skillList.map(skill => (
+            <div key={skill.name} className="bg-gray-800 p-3 rounded">
+              <div className="flex items-center justify-between mb-2">
+                <span className={`font-medium ${freeSkills.includes(skill.name) ? 'text-yellow-500' : ''}`}>
+                  {skill.name}
+                  {freeSkills.includes(skill.name) && ' (Free)'}
+                </span>
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => handleSkillLevelChange(skill.name, -1)}
+                    className="w-6 h-6 bg-red-500 text-white rounded flex items-center justify-center"
+                    disabled={skills[skill.name.toLowerCase()] === -1 || freeSkills.includes(skill.name)}
+                  >
+                    -
+                  </button>
+                  <span className="w-8 text-center bg-gray-700">
+                    {skills[skill.name.toLowerCase()]}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleSkillLevelChange(skill.name, 1)}
+                    className="w-6 h-6 bg-green-500 text-white rounded flex items-center justify-center"
+                    disabled={skills[skill.name.toLowerCase()] === 1 || skillPoints === 0}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <button 
+                type="button"
+                onClick={() => setExpandedSkill(expandedSkill === skill.name ? null : skill.name)}
+                className="text-sm text-gray-400 hover:text-white focus:outline-none"
+              >
+                {expandedSkill === skill.name ? 'Hide description' : 'Show description'}
+              </button>
+              {expandedSkill === skill.name && (
+                <p className="text-sm text-gray-400 mt-2">{skill.description}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
 
-        <section className="character-summary">
-          <h2 className="text-2xl font-semibold mb-4">Character Summary</h2>
-          {/* Collapsible summary content */}
-        </section>
-
-        <button type="submit" className="w-full p-3 bg-yellow-500 text-black font-bold rounded hover:bg-yellow-600">
-          Save Character
-        </button>
-      </form>
+      <button 
+        onClick={handleSubmit} 
+        className="w-full p-3 bg-yellow-500 text-black font-bold rounded hover:bg-yellow-600 mt-8"
+      >
+        Save Character
+      </button>
     </div>
   );
 };
