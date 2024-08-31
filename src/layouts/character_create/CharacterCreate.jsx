@@ -1,5 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { 
+  jerryRhymes, 
+  teasingMessages, 
+  backgrounds, 
+  classes, 
+  skillList, 
+  skillTypes,
+  combatSkills,
+  psychicSkills,
+  allSkills,
+  fociList,
+  specialSkillCategories
+} from './CharacterData';
 
 export const CharacterCreate = () => {
   const [attributes, setAttributes] = useState({
@@ -25,7 +38,8 @@ export const CharacterCreate = () => {
     notice: 0, perform: 0, pilot: 0, program: 0, punch: 0, shoot: 0, sneak: 0,
     survive: 0, talk: 0, trade: 0, work: 0
   });
-  const [skillPoints, setSkillPoints] = useState(0);
+  const [skillPoints, setSkillPoints] = useState(null);
+  const [skillPointsMessage, setSkillPointsMessage] = useState('');
   const [freeSkills, setFreeSkills] = useState([]);
 
   const [selectedFoci, setSelectedFoci] = useState([]);
@@ -39,198 +53,12 @@ export const CharacterCreate = () => {
     luck: null
   });
 
-  const skillList = [
-    { name: 'Administer', description: 'Manage organizations and bureaucracies' },
-    { name: 'Connect', description: 'Find people and build networks' },
-    { name: 'Exert', description: 'Physical feats of strength and endurance' },
-    { name: 'Fix', description: 'Repair and build things' },
-    { name: 'Heal', description: 'Treat injuries and cure diseases' },
-    { name: 'Know', description: 'Education and general knowledge' },
-    { name: 'Lead', description: 'Guide and command others' },
-    { name: 'Notice', description: 'Spot hidden things and sense motives' },
-    { name: 'Perform', description: 'Entertain and create art' },
-    { name: 'Pilot', description: 'Operate vehicles and starships' },
-    { name: 'Program', description: 'Use and create computer software' },
-    { name: 'Punch', description: 'Unarmed combat' },
-    { name: 'Shoot', description: 'Pew pew' },
-    { name: 'Sneak', description: 'Move quietly and remain hidden' },
-    { name: 'Survive', description: 'Endure harsh environments' },
-    { name: 'Talk', description: 'Persuade and deceive others' },
-    { name: 'Trade', description: 'Buy, sell, and evaluate goods' },
-    { name: 'Work', description: 'General labor and craftsmanship' }
-  ];
+  const [backgroundSkill, setBackgroundSkill] = useState(null);
+  const [additionalSkills, setAdditionalSkills] = useState([]);
+  const [freeSkill, setFreeSkill] = useState(null);
+  const [psychicSkills, setPsychicSkills] = useState([]);
 
-  const teasingMessages = [
-    "Hmm, trying your luck again?",
-    "Oh, a perfectionist, are we?",
-    "Third time's the charm... right?",
-    "You know the dice gods are watching, right?",
-    "Ahem... 'randomly' generated, you say?",
-    "Are you sure you're not looking for loaded dice?",
-    "If you roll any more, we might have to call the RNG police!",
-    "You dirty, dirty cheater!",
-    "Okay, now you're just being ridiculous!",
-    "STOP! STOP! The dice are already dead!"
-  ];
-
-  const backgrounds = [
-    { value: 'barbarian', label: 'Barbarian', description: 'You come from a world with a tech level of 0 or 1, or from the untamed hinterlands of a more advanced world.', skills: ['Survive', 'Notice', 'Any Combat'] },
-    { value: 'clergy', label: 'Clergy', description: 'You were a priest, nun, monk, or other religious functionary in an organized faith.', skills: ['Talk', 'Perform', 'Know'] },
-    { value: 'courtesan', label: 'Courtesan', description: 'You were trained in the arts of pleasure, entertainment, and social intrigue.', skills: ['Perform', 'Notice', 'Connect'] },
-    { value: 'criminal', label: 'Criminal', description: 'You were a thief, smuggler, or other underworld figure.', skills: ['Sneak', 'Connect', 'Administer'] },
-    { value: 'dilettante', label: 'Dilettante', description: 'You were a child of wealth and privilege.', skills: ['Connect', 'Know', 'Any Skill'] },
-    { value: 'entertainer', label: 'Entertainer', description: 'You were a professional entertainer or artist.', skills: ['Perform', 'Talk', 'Any Skill'] },
-    { value: 'merchant', label: 'Merchant', description: 'You were a trader in goods and services.', skills: ['Trade', 'Talk', 'Connect'] },
-    { value: 'noble', label: 'Noble', description: 'You were a member of the ruling class.', skills: ['Lead', 'Connect', 'Administer'] },
-    { value: 'official', label: 'Official', description: 'You were a member of the government bureaucracy.', skills: ['Administer', 'Connect', 'Know'] },
-    { value: 'peasant', label: 'Peasant', description: 'You were a manual laborer or unskilled worker.', skills: ['Exert', 'Sneak', 'Survive'] },
-    { value: 'physician', label: 'Physician', description: 'You were a doctor, nurse, or other medical professional.', skills: ['Heal', 'Know', 'Notice'] },
-    { value: 'pilot', label: 'Pilot', description: "You were a spacecraft pilot or ship's crew member.", skills: ['Pilot', 'Fix', 'Trade'] },
-    { value: 'politician', label: 'Politician', description: 'You were an elected or appointed government official.', skills: ['Talk', 'Lead', 'Connect'] },
-    { value: 'scholar', label: 'Scholar', description: 'You were an academic or professional researcher.', skills: ['Know', 'Perform', 'Any Skill'] },
-    { value: 'soldier', label: 'Soldier', description: 'You were a military member or mercenary.', skills: ['Any Combat', 'Exert', 'Survive'] },
-    { value: 'technician', label: 'Technician', description: 'You were a mechanical or technical specialist.', skills: ['Fix', 'Know', 'Exert'] },
-    { value: 'thug', label: 'Thug', description: 'You were a violent criminal or strong-arm enforcer.', skills: ['Any Combat', 'Talk', 'Connect'] },
-    { value: 'vagabond', label: 'Vagabond', description: 'You were a wanderer, outcast, or exile.', skills: ['Survive', 'Notice', 'Any Skill'] },
-    { value: 'worker', label: 'Worker', description: 'You were a skilled tradesman or artisan.', skills: ['Work', 'Exert', 'Connect'] },
-  ];
-
-  const classes = [
-    { value: 'warrior', label: 'Warrior', description: 'Warriors are masters of combat and physical conflict.', primeAttribute: 'Strength or Dexterity' },
-    { value: 'expert', label: 'Expert', description: 'Experts are skilled professionals and capable generalists.', primeAttribute: 'Intelligence or Charisma' },
-    { value: 'psychic', label: 'Psychic', description: 'Psychics are humans gifted with metadimensional powers.', primeAttribute: 'Wisdom' },
-    { value: 'adventurer', label: 'Adventurer', description: 'Adventurers blend the abilities of other classes.', primeAttribute: 'Any two' },
-  ];
-
-  const fociList = [
-    {
-      name: 'Alert',
-      description: 'You\'re keenly aware of your surroundings and hard to surprise.',
-      level1Benefit: 'Gain Notice as a bonus skill',
-      level2Benefit: 'You always act in the first round of combat',
-      skillImpact: { notice: 1 }
-    },
-    {
-      name: 'Armsman',
-      description: 'You\'re trained in the use of advanced weapons and armor.',
-      level1Benefit: 'Gain any combat skill as a bonus skill',
-      level2Benefit: 'You can use any armor or weapon without penalty',
-      skillImpact: { combatSkill: 1 }
-    },
-    {
-      name: 'Assassin',
-      description: 'You\'re skilled at dealing sudden violence to unsuspecting victims.',
-      level1Benefit: 'Gain Sneak as a bonus skill',
-      level2Benefit: 'Your first attack in combat always surprises',
-      skillImpact: { sneak: 1 }
-    },
-    {
-      name: 'Authority',
-      description: 'You\'re a natural leader with a talent for commanding others.',
-      level1Benefit: 'Gain Lead as a bonus skill',
-      level2Benefit: 'You can command up to 10 followers',
-      skillImpact: { lead: 1 }
-    },
-    {
-      name: 'Connected',
-      description: 'You have a wide range of useful connections in your profession.',
-      level1Benefit: 'Gain Connect as a bonus skill',
-      level2Benefit: 'You can always find a way to get what you need',
-      skillImpact: { connect: 1 }
-    },
-    {
-      name: 'Die Hard',
-      description: 'You\'re exceptionally difficult to kill and can survive grievous injuries.',
-      level1Benefit: 'Gain Survive as a bonus skill',
-      level2Benefit: 'You can survive without food or water for a week',
-      skillImpact: { survive: 1 }
-    },
-    {
-      name: 'Gunslinger',
-      description: 'You\'re an expert shot with ranged weapons.',
-      level1Benefit: 'Gain Shoot as a bonus skill',
-      level2Benefit: 'You can shoot while moving',
-      skillImpact: { shoot: 1 }
-    },
-    {
-      name: 'Hacker',
-      description: 'You\'re a master of digital intrusion and electronic warfare.',
-      level1Benefit: 'Gain Program as a bonus skill',
-      level2Benefit: 'You can hack any computer system',
-      skillImpact: { program: 1 }
-    },
-    {
-      name: 'Healer',
-      description: 'You\'re talented at patching up injuries and curing ailments.',
-      level1Benefit: 'Gain Heal as a bonus skill',
-      level2Benefit: 'You can heal 2d6 hit points per round',
-      skillImpact: { heal: 1 }
-    },
-    {
-      name: 'Ironhide',
-      description: 'Your skin is preternaturally tough and resistant to harm.',
-      level1Benefit: 'Gain Exert as a bonus skill',
-      level2Benefit: 'You have a +2 bonus to armor class',
-      skillImpact: { exert: 1 }
-    },
-    {
-      name: 'Savage Fray',
-      description: 'You\'re exceptionally dangerous in melee combat.',
-      level1Benefit: 'Gain Punch as a bonus skill',
-      level2Benefit: 'You deal double damage with unarmed attacks',
-      skillImpact: { punch: 1 }
-    },
-    {
-      name: 'Sniper',
-      description: 'You\'re a crackshot with long-ranged weapons.',
-      level1Benefit: 'Gain Shoot as a bonus skill',
-      level2Benefit: 'You can shoot at long range without penalty',
-      skillImpact: { shoot: 1 }
-    },
-    {
-      name: 'Specialist',
-      description: 'You\'re especially talented with one particular skill.',
-      level1Benefit: 'Choose a skill and gain it as a bonus skill',
-      level2Benefit: 'You can use that skill at a +2 bonus',
-      skillImpact: { specialist: 1 }
-    },
-    {
-      name: 'Star Captain',
-      description: 'You\'re a gifted starship pilot and leader.',
-      level1Benefit: 'Gain Pilot as a bonus skill',
-      level2Benefit: 'You can command a starship of any size',
-      skillImpact: { pilot: 1 }
-    },
-    {
-      name: 'Starfarer',
-      description: 'You\'re unusually talented at interstellar navigation and stellar survival.',
-      level1Benefit: 'Gain Survive as a bonus skill',
-      level2Benefit: 'You can navigate any starship',
-      skillImpact: { survive: 1 }
-    },
-    {
-      name: 'Tinker',
-      description: 'You\'re skilled at improvising and repairing equipment.',
-      level1Benefit: 'Gain Fix as a bonus skill',
-      level2Benefit: 'You can repair any equipment',
-      skillImpact: { fix: 1 }
-    },
-    {
-      name: 'Unarmed Combatant',
-      description: 'You\'re a deadly fighter even without weapons.',
-      level1Benefit: 'Gain Punch as a bonus skill',
-      level2Benefit: 'You can disarm opponents with a successful unarmed attack',
-      skillImpact: { punch: 1 }
-    },
-    {
-      name: 'Wanderer',
-      description: 'You\'re unusually talented at survival and blending in with alien cultures.',
-      level1Benefit: 'Gain Survive as a bonus skill',
-      level2Benefit: 'You can blend in with any culture',
-      skillImpact: { survive: 1 }
-    },
-    // Add more foci as needed
-  ];
+  const [expandedSkill, setExpandedSkill] = useState(null);
 
   const rollDie = () => Math.floor(Math.random() * 6) + 1;
 
@@ -374,25 +202,103 @@ export const CharacterCreate = () => {
     }
   }, [characterClass]);
 
-  useEffect(() => {
-    // Set free skills based on background
+  const handleBackgroundChange = (e) => {
+    const newBackground = e.target.value;
+    setBackground(newBackground);
+    
+    const selectedBackground = backgrounds.find(bg => bg.value === newBackground);
+    if (selectedBackground) {
+      setBackgroundSkill({ name: selectedBackground.skill, level: 0 });
+      setFreeSkills(selectedBackground.skills.filter(skill => 
+        skill !== specialSkillCategories.ANY_COMBAT &&
+        skill !== specialSkillCategories.ANY_PSYCHIC &&
+        skill !== specialSkillCategories.ANY_SKILL
+      ));
+      
+      // Reset additional skills
+      setAdditionalSkills([]);
+      
+      // Update skills object
+      const newSkills = { ...skills };
+      selectedBackground.skills.forEach(skill => {
+        if (skill === specialSkillCategories.ANY_COMBAT ||
+            skill === specialSkillCategories.ANY_PSYCHIC ||
+            skill === specialSkillCategories.ANY_SKILL) {
+          // These will be handled separately
+        } else {
+          newSkills[skill.toLowerCase()] = 0; // Set to level-0
+        }
+      });
+      setSkills(newSkills);
+    }
+  };
+
+  const handleAdditionalSkillSelection = (skill) => {
+    if (additionalSkills.length < 2) {
+      setAdditionalSkills(prev => [...prev, { name: skill, level: 0 }]);
+      setSkills(prev => ({ ...prev, [skill.toLowerCase()]: 0 }));
+    }
+  };
+
+  const handleSkillLevelIncrease = (skillName) => {
+    setAdditionalSkills(prev => prev.map(skill => 
+      skill.name === skillName && skill.level === 0 ? { ...skill, level: 1 } : skill
+    ));
+    setSkills(prev => ({ ...prev, [skillName.toLowerCase()]: 1 }));
+  };
+
+  const handleFreeSkillSelection = (skill) => {
+    if (!freeSkill) {
+      setFreeSkill({ name: skill, level: 0 });
+      setSkills(prev => ({ ...prev, [skill.toLowerCase()]: 0 }));
+    }
+  };
+
+  const handlePsychicSkillSelection = (skill) => {
+    const maxPsychicSkills = characterClass === 'psychic' ? 2 : characterClass === 'adventurer' ? 1 : 0;
+    if (psychicSkills.length < maxPsychicSkills) {
+      setPsychicSkills(prev => [...prev, { name: skill, level: 0 }]);
+      setSkills(prev => ({ ...prev, [skill.toLowerCase()]: 0 }));
+    }
+  };
+
+  const calculateSkillPoints = () => {
+    if (!characterClass || !attributes.intelligence.score) {
+      setSkillPoints(null);
+      setSkillPointsMessage('Select a class and set Intelligence to calculate skill points.');
+      return;
+    }
+
+    const basePoints = characterClass === 'expert' ? 4 : 3;
+    const intModifier = attributes.intelligence.mod;
+    let totalPoints = basePoints + intModifier;
+
+    // Add points from background if applicable
     if (background) {
       const selectedBackground = backgrounds.find(bg => bg.value === background);
-      if (selectedBackground) {
-        setFreeSkills(selectedBackground.skills);
-        // Automatically set free skills to level 1
-        const updatedSkills = { ...skills };
-        selectedBackground.skills.forEach(skill => {
-          if (skill !== 'Any Combat' && skill !== 'Any Skill') {
-            updatedSkills[skill.toLowerCase()] = 1;
-          }
-        });
-        setSkills(updatedSkills);
+      if (selectedBackground && selectedBackground.skillPoints) {
+        totalPoints += selectedBackground.skillPoints;
       }
-    } else {
-      setFreeSkills([]);
     }
-  }, [background]);
+
+    // Add points from foci if applicable
+    selectedFoci.forEach(focusName => {
+      const focus = fociList.find(f => f.name === focusName);
+      if (focus && focus.levels[0].skillPoints) {
+        totalPoints += focus.levels[0].skillPoints;
+      }
+    });
+
+    // Subtract points for skills already selected
+    totalPoints -= Object.values(skills).reduce((sum, level) => sum + level, 0);
+
+    setSkillPoints(totalPoints);
+    setSkillPointsMessage(`You have ${totalPoints} skill points to distribute.`);
+  };
+
+  useEffect(() => {
+    calculateSkillPoints();
+  }, [characterClass, attributes.intelligence, background, selectedFoci, skills]);
 
   useEffect(() => {
     // Update available foci count based on class
@@ -485,38 +391,10 @@ export const CharacterCreate = () => {
 
   }, [characterClass, attributes]);
 
-  const jerryRhymes = [
-    'Berry', 'Cary', 'Derry', 'Ferry', 'Gary', 'Harry', 'Kerry', 'Larry', 
-    'Mary', 'Perry', 'Sherry', 'Terry', 'Very', 'Werry', 'Jerry'
-  ];
-
   const randomizeName = (e) => {
     e.preventDefault(); // Prevent form submission
     const randomIndex = Math.floor(Math.random() * jerryRhymes.length);
     setCharacterName(jerryRhymes[randomIndex]);
-  };
-
-  const handleBackgroundChange = (e) => {
-    const newBackground = e.target.value;
-    setBackground(newBackground);
-    
-    // Reset free skills
-    setFreeSkills([]);
-    
-    // Set new free skills based on background
-    const selectedBackground = backgrounds.find(bg => bg.value === newBackground);
-    if (selectedBackground) {
-      setFreeSkills(selectedBackground.skills);
-      
-      // Update skills
-      const newSkills = { ...skills };
-      selectedBackground.skills.forEach(skill => {
-        if (skill !== 'any combat') {
-          newSkills[skill] = 1;
-        }
-      });
-      setSkills(newSkills);
-    }
   };
 
   const handleClassChange = (e) => {
@@ -533,13 +411,22 @@ export const CharacterCreate = () => {
     }
   };
 
-  useEffect(() => {
-    // Additional effects when background or class changes
-    // For example, you might want to recalculate total skill points here
-    const totalSkillPoints = characterClass ? classes.find(cls => cls.value === characterClass).skillPoints : 0;
-    const usedSkillPoints = Object.values(skills).reduce((sum, value) => sum + value, 0);
-    setSkillPoints(totalSkillPoints - usedSkillPoints);
-  }, [background, characterClass, skills]);
+  const handleSkillLevelChange = (skillName, increment) => {
+    const currentLevel = skills[skillName.toLowerCase()];
+    const newLevel = currentLevel + increment;
+
+    if (newLevel >= 0 && newLevel <= 1) {
+      const isFreeLevelUp = freeSkills.includes(skillName) && currentLevel === 0 && increment === 1;
+      const isFreeLevelDown = freeSkills.includes(skillName) && currentLevel === 1 && increment === -1;
+
+      if (isFreeLevelUp || isFreeLevelDown || (skillPoints > 0 && increment === 1) || increment === -1) {
+        setSkills(prev => ({...prev, [skillName.toLowerCase()]: newLevel}));
+        if (!isFreeLevelUp && !isFreeLevelDown) {
+          setSkillPoints(prev => prev - increment);
+        }
+      }
+    }
+  };
 
   return (
     <div className="character-create-container p-6 max-w-6xl mx-auto bg-gray-900 text-white rounded-lg shadow-lg">
@@ -701,43 +588,6 @@ export const CharacterCreate = () => {
           </DragDropContext>
         </section>
 
-        <section className="skills mt-8">
-          <h2 className="text-2xl font-semibold mb-4">Skills</h2>
-          <p className="mb-4">Skill Points Remaining: <span className="text-yellow-500 font-bold">{skillPoints}</span></p>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {skillList.map(skill => (
-              <div key={skill.name} className="bg-gray-800 p-3 rounded">
-                <div className="flex items-center justify-between mb-2">
-                  <span className={`font-medium ${freeSkills.includes(skill.name) ? 'text-yellow-500' : ''}`}>
-                    {skill.name}
-                    {freeSkills.includes(skill.name) && ' (Free)'}
-                  </span>
-                  <div className="flex items-center">
-                    <button
-                      onClick={() => handleSkillChange(skill.name, -1)}
-                      className="w-6 h-6 bg-red-500 text-white rounded-l flex items-center justify-center"
-                      disabled={skills[skill.name.toLowerCase()] === 0 || freeSkills.includes(skill.name)}
-                    >
-                      -
-                    </button>
-                    <span className="w-8 text-center bg-gray-700">
-                      {skills[skill.name.toLowerCase()]}
-                    </span>
-                    <button
-                      onClick={() => handleSkillChange(skill.name, 1)}
-                      className="w-6 h-6 bg-green-500 text-white rounded-r flex items-center justify-center"
-                      disabled={skills[skill.name.toLowerCase()] === 1 || (skillPoints === 0 && !freeSkills.includes(skill.name))}
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-400">{skill.description}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
         <section className="foci mt-8">
           <h2 className="text-2xl font-semibold mb-4">Foci</h2>
           <p className="mb-4">Select up to {availableFociCount} {availableFociCount === 1 ? 'focus' : 'foci'}:</p>
@@ -752,6 +602,55 @@ export const CharacterCreate = () => {
                 <p className="text-sm text-gray-400 mb-2">{focus.description}</p>
                 <p className="text-sm text-green-400">Level 1: {focus.level1Benefit}</p>
                 <p className="text-sm text-blue-400">Level 2: {focus.level2Benefit}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="skills mt-8">
+          <h2 className="text-2xl font-semibold mb-4">Skills</h2>
+          {skillPoints !== null ? (
+            <p className="mb-4">Skill Points Remaining: <span className="text-yellow-500 font-bold">{skillPoints}</span></p>
+          ) : (
+            <p className="mb-4 text-yellow-500">{skillPointsMessage}</p>
+          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {skillList.map(skill => (
+              <div key={skill.name} className="bg-gray-800 p-3 rounded">
+                <div className="flex items-center justify-between mb-2">
+                  <span className={`font-medium ${freeSkills.includes(skill.name) ? 'text-yellow-500' : ''}`}>
+                    {skill.name}
+                    {freeSkills.includes(skill.name) && ' (Free)'}
+                  </span>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => handleSkillLevelChange(skill.name, -1)}
+                      className="w-6 h-6 bg-red-500 text-white rounded flex items-center justify-center"
+                      disabled={skills[skill.name.toLowerCase()] === 0 || freeSkills.includes(skill.name)}
+                    >
+                      -
+                    </button>
+                    <span className="w-8 text-center bg-gray-700">
+                      {skills[skill.name.toLowerCase()] || 0}
+                    </span>
+                    <button
+                      onClick={() => handleSkillLevelChange(skill.name, 1)}
+                      className="w-6 h-6 bg-green-500 text-white rounded flex items-center justify-center"
+                      disabled={skills[skill.name.toLowerCase()] === 1 || skillPoints === 0}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setExpandedSkill(expandedSkill === skill.name ? null : skill.name)}
+                  className="text-sm text-gray-400 hover:text-white focus:outline-none"
+                >
+                  {expandedSkill === skill.name ? 'Hide description' : 'Show description'}
+                </button>
+                {expandedSkill === skill.name && (
+                  <p className="text-sm text-gray-400 mt-2">{skill.description}</p>
+                )}
               </div>
             ))}
           </div>
