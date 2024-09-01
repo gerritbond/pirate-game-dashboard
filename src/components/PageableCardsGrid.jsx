@@ -76,7 +76,7 @@ export const PageableCardsGrid = ({
               <div className="grid row-span-7 relative overflow-hidden border-yellow-500 border-b-2">
                 <img
                   className="absolute object-contain h-fit w-fit"
-                  src="\assets\scifi-silhouette.jpg"
+                  src="/public/images/scifi-silhouette.jpg"
                   alt={"Non-existant Character"}
                 />
               </div>

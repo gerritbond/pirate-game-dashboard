@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { SideButtonPanelV2 } from "../components/SideButtonPanel";
-import { GraphicSidePanel } from "../components/GraphicSidePanel";
+import { SideButtonPanelV2 } from "@components/SideButtonPanel";
+import { GraphicSidePanel } from "@components/GraphicSidePanel";
 
 const globalRouting = [
   {

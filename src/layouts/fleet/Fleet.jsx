@@ -1,7 +1,7 @@
-import ships from "../../fixtures/sample_ships";
-import { ContextualDashboardLayout } from "../ContextualDashboardLayout";
+import ships from "@fixtures/sample_ships";
+import { ContextualDashboardLayout } from "@layouts/ContextualDashboardLayout";
 import { FaCoins } from "react-icons/fa";
-import { PageableCardsGrid } from "../../components/PageableCardsGrid";
+import { PageableCardsGrid } from "@components/PageableCardsGrid";
 
 export const FleetList = ({ ships }) => {
   const sellShip = () =>

@@ -32,7 +32,16 @@
         },
         "import/resolver": {
             "node": {
-                "extensions": [".js", ".jsx"]
+                "extensions": [".js", ".jsx", ".ts", ".tsx"]
+            },
+            "alias": {
+                "map": [
+                    ["@assets", "./src/assets"],
+                    ["@components", "./src/components"],
+                    ["@utils", "./src/utils"],
+                    ["@layouts", "./src/layouts"],
+                    ["@fixtures", "./src/fixtures"]
+                ]
             }
         }
     }

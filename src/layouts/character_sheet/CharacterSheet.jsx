@@ -1,4 +1,4 @@
-import { sampleCharacter } from "../../fixtures/sample_character";
+import { sampleCharacter } from "@fixtures/sample_character";
 import { BiographyPanel } from "./BiographyPanel";
 import { EquipmentPanel } from "./EquipmentPanel";
 import { StatsPanel } from "./StatsPanel";

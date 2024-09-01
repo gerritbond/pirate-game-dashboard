@@ -1,7 +1,7 @@
 const ships = [
   {
     name: "The Rose",
-    imageUrl: "/assets/starship.jpg",
+    imageUrl: "/assets/images/starship.jpg",
     id: "XNT-381",
     captain: "Victor the Black",
     hull: "Corvette",
@@ -163,7 +163,7 @@ const ships = [
   },
   {
     name: "The Rose",
-    imageUrl: "/assets/fighter-starship.jpg",
+    imageUrl: "/public/images/fighter-starship.jpg",
     id: "XNT-382",
     captain: "Victor the Black",
     hull: "Corvette",
@@ -325,7 +325,7 @@ const ships = [
   },
   {
     name: "Aardvark",
-    imageUrl: "/assets/fighter-starship.jpg",
+    imageUrl: "/public/images/fighter-starship.jpg",
     id: "XNT-383",
     captain: "Victor the Black",
     hull: "Corvette",
@@ -487,7 +487,7 @@ const ships = [
   },
   {
     name: "The Rose",
-    imageUrl: "/assets/fighter-starship.jpg",
+    imageUrl: "/public/images/fighter-starship.jpg",
     id: "XNT-386",
     captain: "Victor the Black",
     location: {
@@ -649,7 +649,7 @@ const ships = [
   },
   {
     name: "The Rose",
-    imageUrl: "/assets/fighter-starship.jpg",
+    imageUrl: "/public/images/fighter-starship.jpg",
     id: "XNT-387",
     captain: "Victor the Black",
     hull: "Corvette",
@@ -811,7 +811,7 @@ const ships = [
   },
   {
     name: "The Rose",
-    imageUrl: "/assets/fighter-starship.jpg",
+    imageUrl: "/public/images/fighter-starship.jpg",
     id: "XNT-388",
     captain: "Victor the Black",
     hull: "Corvette",
@@ -974,7 +974,7 @@ const ships = [
   },
   {
     name: "The Rose",
-    imageUrl: "/assets/fighter-starship.jpg",
+    imageUrl: "/public/images/fighter-starship.jpg",
     id: "XNT-389",
     captain: "Victor the Black",
     hull: "Corvette",
@@ -1136,7 +1136,7 @@ const ships = [
   },
   {
     name: "The Rose",
-    imageUrl: "/assets/fighter-starship.jpg",
+    imageUrl: "/public/images/fighter-starship.jpg",
     id: "XNT-351",
     captain: "Victor the Black",
     hull: "Corvette",
@@ -1298,7 +1298,7 @@ const ships = [
   },
   {
     name: "The Rose",
-    imageUrl: "/assets/fighter-starship.jpg",
+    imageUrl: "/public/images/fighter-starship.jpg",
     id: "XNT-361",
     captain: "Victor the Black",
     hull: "Corvette",
@@ -1460,7 +1460,7 @@ const ships = [
   },
   {
     name: "The Rose",
-    imageUrl: "/assets/fighter-starship.jpg",
+    imageUrl: "/public/images/fighter-starship.jpg",
     id: "XNT-371",
     captain: "Victor the Black",
     hull: "Corvette",
@@ -1622,7 +1622,7 @@ const ships = [
   },
   {
     name: "The Rose",
-    imageUrl: "/assets/fighter-starship.jpg",
+    imageUrl: "/public/images/fighter-starship.jpg",
     id: "XNT-391",
     captain: "Victor the Black",
     hull: "Corvette",

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { crew as crewDetails } from "../../fixtures/sample_crew";
 import { hirable as recruits } from "../../fixtures/sample_hirable";
-import { formatCurrency } from "../../util/util";
+import { formatCurrency } from "@utils/util";
 
 export const QuartermasterSummary = ({ shipDetails }) => {
   return (

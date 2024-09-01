@@ -1,11 +1,11 @@
 import { useParams } from "react-router-dom";
-import ships from "../../fixtures/sample_ships";
+import ships from "@fixtures/sample_ships";
 import { ContextualDashboardLayout } from "../ContextualDashboardLayout";
 import QuartermasterPanel from "./QuartermasterPanel";
 import PurserPanel from "./PurserPanel";
 import CombatPanel from "./CombatPanel";
 import { EngineeringPanel } from "./EngineeringPanel";
-import { formatCurrency } from "../../util/util";
+import { formatCurrency } from "@utils/util";
 
 const ShipDetailsSidePanel = ({ ship, load }) => {
   return (

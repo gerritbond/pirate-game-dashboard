@@ -6,22 +6,22 @@ import { useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 
 // TODO this is gross, there has to be a better way to import all of the possible planet textures and do the selection, but I'm lazy.
-import alpine from "../../textures/planets/Alpine.png";
-import savannah from "../../textures/planets/Savannah.png";
-import swamp from "../../textures/planets/Swamp.png";
-import tropical from "../../textures/planets/Tropical.png";
-import gas1 from "../../textures/planets/Gaseous1.png";
-import gas2 from "../../textures/planets/Gaseous2.png";
-import gas3 from "../../textures/planets/Gaseous3.png";
-import gas4 from "../../textures/planets/Gaseous4.png";
-import icy from "../../textures/planets/Icy.png";
-import martian from "../../textures/planets/Martian.png";
-import terra1 from "../../textures/planets/Terrestrial1.png";
-import terra2 from "../../textures/planets/Terrestrial2.png";
-import terra3 from "../../textures/planets/Terrestrial3.png";
-import terra4 from "../../textures/planets/Terrestrial4.png";
-import venusian from "../../textures/planets/Venusian.png";
-import volcanic from "../../textures/planets/Volcanic.png";
+import alpine from "@assets/textures/planets/Alpine.png";
+import savannah from "@assets/textures/planets/Savannah.png";
+import swamp from "@assets/textures/planets/Swamp.png";
+import tropical from "@assets/textures/planets/Tropical.png";
+import gas1 from "@assets/textures/planets/Gaseous1.png";
+import gas2 from "@assets/textures/planets/Gaseous2.png";
+import gas3 from "@assets/textures/planets/Gaseous3.png";
+import gas4 from "@assets/textures/planets/Gaseous4.png";
+import icy from "@assets/textures/planets/Icy.png";
+import martian from "@assets/textures/planets/Martian.png";
+import terra1 from "@assets/textures/planets/Terrestrial1.png";
+import terra2 from "@assets/textures/planets/Terrestrial2.png";
+import terra3 from "@assets/textures/planets/Terrestrial3.png";
+import terra4 from "@assets/textures/planets/Terrestrial4.png";
+import venusian from "@assets/textures/planets/Venusian.png";
+import volcanic from "@assets/textures/planets/Volcanic.png";
 
 const contextualNavigationSample = [];
 

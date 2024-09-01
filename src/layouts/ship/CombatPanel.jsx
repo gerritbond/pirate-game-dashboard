@@ -1,4 +1,4 @@
-import { formatCurrency } from "../../util/util";
+import { formatCurrency } from "@utils/util";
 
 export const CombatSummary = ({ shipDetails }) => {
   return (
