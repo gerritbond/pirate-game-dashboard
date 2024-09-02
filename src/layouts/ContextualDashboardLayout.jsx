@@ -65,13 +65,21 @@ export const PrimaryPanel = () => {
 export const ActionPanel = ({ buttons }) => {
   return (
     <div className="grid grid-flow-col text-yellow-500 items-center text-center font-bold">
-      {buttons.map((b) => {
-        return (
-          <button onClick={() => b.func} key={b.name} className="grid-cols-1 ">
-            {b.name}
-          </button>
-        );
-      })}
+      {buttons.length > 0 ? (
+        buttons.map((b) => {
+          return (
+            <button
+              onClick={() => b.func}
+              key={b.name}
+              className="grid-cols-1 "
+            >
+              {b.name}
+            </button>
+          );
+        })
+      ) : (
+        <div className="flex justify-center items-center  ">No buttons</div>
+      )}
     </div>
   );
 };
@@ -79,11 +87,14 @@ export const ActionPanel = ({ buttons }) => {
 export const ContextualDashboardLayout = ({
   primaryPanel,
   sidePanel,
+  startingPanel,
   contextualNavigation,
   actionBar,
 }) => {
   const routingPanelState = useState(globalRouting.Home);
-  const contextualPanelState = useState(contextualNavigation[0]?.state);
+  const contextualPanelState = useState(
+    startingPanel || contextualNavigation[0]?.state
+  );
   const [showRoutingButtons, setShowRoutingButtons] = useState(true);
 
   return (

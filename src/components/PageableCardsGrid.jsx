@@ -1,38 +1,22 @@
 import { Link } from "react-router-dom";
 import { useMemo, useState } from "react";
 
-export const PageableCardsGrid = ({
-  entities,
+const Page = ({
+  chunks,
+  filler,
+  currentPage,
   itemLinkPath,
-  centerButton = {},
-  optionalFunc = undefined,
-  optionalFuncIcon = <></>,
-  pageSize = 8,
-  itemDisplayProperty = "name",
+  itemDisplayProperty,
+  optionalFunc,
+  optionalFuncIcon,
+  pageSize,
+  placeholderImage,
+  placeholderText,
 }) => {
-  const [chunks, filler] = useMemo(() => {
-    let chunks = [];
-    for (let i = 0; i < entities.length; i += pageSize) {
-      chunks.push(entities.slice(i, i + 8));
-    }
-
-    let filler = [];
-    if (chunks.length > 0) {
-      for (let i = 0; i < pageSize - chunks[chunks.length - 1].length; i++) {
-        filler.push(i);
-      }
-    }
-
-    return [chunks, filler];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const [currentPage, setCurrentPage] = useState(0);
-
   return (
-    <div className="grid grid-rows-8">
-      <div className="relative grid grid-cols-4 row-span-7 mx-3">
-        {chunks[currentPage].map((entity) => (
+    <div className="relative grid grid-cols-4 row-span-7 mx-3">
+      {chunks.length > 0 ? (
+        chunks[currentPage].map((entity) => (
           <div
             className="relative overflow-hidden grid grid-rows-8 mx-2 my-2 border-yellow-500 border-2"
             key={entity.id}
@@ -64,31 +48,87 @@ export const PageableCardsGrid = ({
               )}
             </div>
           </div>
-        ))}
-        {chunks[currentPage].length >= pageSize ? (
-          <></>
-        ) : (
-          filler.map((f) => (
-            <div
-              className="relative overflow-hidden grid grid-rows-8 mx-2 my-2 border-yellow-500 border-2 opacity-30"
-              key={"sil-" + f}
-            >
-              <div className="grid row-span-7 relative overflow-hidden border-yellow-500 border-b-2">
-                <img
-                  className="absolute object-contain h-fit w-fit"
-                  src="/public/images/scifi-silhouette.jpg"
-                  alt={"Non-existant Character"}
-                />
-              </div>
-              <div className="grid row-span-1 grid-cols-5 bg-yellow-500 justify-center items-center font-bold">
-                <div className="grid pl-2"></div>
-                <div className="grid col-span-3 text-center">Nameless</div>
-                <div className="w-full "></div>
-              </div>
+        ))
+      ) : (
+        <></>
+      )}
+      {chunks.length != 0 && chunks[currentPage].length >= pageSize ? (
+        <></>
+      ) : (
+        filler.map((f) => (
+          <div
+            className="relative overflow-hidden grid grid-rows-8 mx-2 my-2 border-yellow-500 border-2 opacity-30"
+            key={"sil-" + f}
+          >
+            <div className="grid row-span-7 relative overflow-hidden border-yellow-500 border-b-2">
+              <img
+                className="absolute object-contain h-fit w-fit"
+                src={placeholderImage}
+                alt={"Non-existant Character"}
+              />
             </div>
-          ))
-        )}
-      </div>
+            <div className="grid row-span-1 grid-cols-5 bg-yellow-500 justify-center items-center font-bold">
+              <div className="grid pl-2"></div>
+              <div className="grid col-span-3 text-center">
+                {placeholderText}
+              </div>
+              <div className="w-full "></div>
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  );
+};
+
+export const PageableCardsGrid = ({
+  entities,
+  itemLinkPath,
+  centerButton = {},
+  optionalFunc = undefined,
+  optionalFuncIcon = <></>,
+  pageSize = 8,
+  itemDisplayProperty = "name",
+  placeholderImage = "/public/images/scifi-silhouette.jpg",
+  placeholderText = "Nameless",
+}) => {
+  const [chunks, filler] = useMemo(() => {
+    let chunks = [];
+    for (let i = 0; i < entities.length; i += pageSize) {
+      chunks.push(entities.slice(i, i + pageSize));
+    }
+
+    let filler = [];
+    if (chunks.length > 0) {
+      for (let i = 0; i < pageSize - chunks[chunks.length - 1].length; i++) {
+        filler.push(i);
+      }
+    } else {
+      for (let i = 0; i < pageSize; i++) {
+        filler.push(i);
+      }
+    }
+
+    return [chunks, filler];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const [currentPage, setCurrentPage] = useState(0);
+
+  return (
+    <div className="grid grid-rows-8">
+      <Page
+        chunks={chunks}
+        filler={filler}
+        currentPage={currentPage}
+        itemLinkPath={itemLinkPath}
+        itemDisplayProperty={itemDisplayProperty}
+        optionalFunc={optionalFunc}
+        optionalFuncIcon={optionalFuncIcon}
+        pageSize={pageSize}
+        placeholderImage={placeholderImage}
+        placeholderText={placeholderText}
+      />
       <div className="grid grid-cols-4 row-span-1 items-center">
         <button
           className="border-2 border-yellow-500 text-yellow-500 hover:text-gray-950 hover:bg-yellow-500 font-bold bg-gray-950 ml-5 mb-5 p-4"
