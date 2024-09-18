@@ -16,6 +16,12 @@ export const teasingMessages = [
   "STOP! STOP! The dice are already dead!"
 ];
 
+export const skillTypes = {
+  GENERAL: 'general',
+  COMBAT: 'combat',
+  PSYCHIC: 'psychic'
+};
+
 export const backgrounds = [
   { value: 'barbarian', label: 'Barbarian', description: 'You come from a world with a tech level of 0 or 1, or from the untamed hinterlands of a more advanced world.', skills: 'Survive' },
   { value: 'clergy', label: 'Clergy', description: 'You were a priest, nun, monk, or other religious functionary.', skills: 'Talk' },
@@ -31,10 +37,10 @@ export const backgrounds = [
   { value: 'pilot', label: 'Pilot', description: 'You were a starship pilot or vehicle operator.', skills: 'Pilot' },
   { value: 'politician', label: 'Politician', description: 'You were an elected or appointed political figure.', skills: 'Talk' },
   { value: 'scholar', label: 'Scholar', description: 'You were an educated researcher or teacher.', skills: 'Know' },
-  { value: 'soldier', label: 'Soldier', description: 'You were a military soldier or mercenary warrior.', skills: 'Any Combat' },
+  { value: 'soldier', label: 'Soldier', description: 'You were a military soldier or mercenary warrior.', skills: { type: skillTypes.COMBAT, options: ['Punch', 'Shoot', 'Stab'] } },
   { value: 'spacer', label: 'Spacer', description: 'You were a crew member aboard an interstellar starship.', skills: 'Fix' },
   { value: 'technician', label: 'Technician', description: 'You were a skilled technical specialist or mechanical engineer.', skills: 'Fix' },
-  { value: 'thug', label: 'Thug', description: 'You were a violent criminal or strong-arm enforcer.', skills: 'Any Combat' },
+  { value: 'thug', label: 'Thug', description: 'You were a violent criminal or strong-arm enforcer.', skills: { type: skillTypes.COMBAT, options: ['Punch', 'Shoot', 'Stab'] } },
   { value: 'vagabond', label: 'Vagabond', description: 'You were a wanderer, living by your wits and your skills.', skills: 'Survive' },
   { value: 'worker', label: 'Worker', description: 'You were a skilled tradesman or industrial laborer.', skills: 'Work' }
 ];
@@ -44,7 +50,7 @@ export const classes = [
     value: 'warrior',
     label: 'Warrior',
     description: 'Warriors are masters of combat and physical conflict. They excel in all forms of warfare, able to use any weapon or armor. Their skills make them ideal for mercenaries, soldiers, and anyone who expects to face danger.',
-    primeAttribute: 'Strength or Dexterity',
+    primeAttribute: ['Strength ', 'Dexterity'],
     uniqueMechanics: [
       'Base Attack Bonus: +1',
       'Hit Points: 1d6+2 per level',
@@ -64,13 +70,14 @@ export const classes = [
     attackBonus: {
       value: 'full',
       description: 'Equal to character level'
-    }
+    },
+    skillPoints: 2
   },
   {
     value: 'expert',
     label: 'Expert',
     description: 'Experts are skilled professionals and capable generalists. They have a wide range of skills and can become proficient in almost any non-combat and non-psychic ability. They make excellent technicians, pilots, and faces for a group.',
-    primeAttribute: 'Intelligence or Charisma',
+    primeAttribute: ['Intelligence ', 'Charisma'],
     uniqueMechanics: [
       'Skill Points: 4 per level',
       'Hit Points: 1d6 per level',
@@ -89,13 +96,14 @@ export const classes = [
     attackBonus: {
       value: 'half',
       description: 'Half character level, rounded down'
-    }
+    },
+    skillPoints: 4
   },
   {
     value: 'psychic',
     label: 'Psychic',
     description: 'Psychics are humans gifted with metadimensional powers. They can manipulate the world around them with their minds, performing feats that seem like magic to others. Their powers come at a cost, and overuse can be dangerous.',
-    primeAttribute: 'Wisdom',
+    primeAttribute: ['Wisdom'],
     uniqueMechanics: [
       'Psychic Skills: Choose two psychic skills',
       'Hit Points: 1d6 per level',
@@ -114,13 +122,14 @@ export const classes = [
     attackBonus: {
       value: 'half',
       description: 'Half character level, rounded down'
-    }
+    },
+    skillPoints: 2
   },
   {
     value: 'adventurer',
     label: 'Adventurer',
     description: 'Adventurers blend the abilities of other classes. They can choose two partial class abilities from Warrior, Expert, or Psychic, allowing for versatile character builds that can fill multiple roles in a group.',
-    primeAttribute: 'Any two',
+    primeAttribute: ['Subclass dependent '],
     uniqueMechanics: [
       'Partial Classes: Choose two partial class benefits from Warrior, Expert, or Psychic',
       'Hit Points: 1d6 per level (1d6+2 if Partial Warrior is chosen)',
@@ -136,15 +145,11 @@ export const classes = [
     attackBonus: {
       value: 'half',
       description: 'Half character level, +1 at 1st and 5th level if Partial Warrior'
-    }
+    },
+    skillPoints: 3
   }
 ];
 
-export const skillTypes = {
-  GENERAL: 'general',
-  COMBAT: 'combat',
-  PSYCHIC: 'psychic'
-};
 
 export const skillList = [
   { name: 'Administer', description: 'Manage organizations and bureaucracies', type: skillTypes.GENERAL },
@@ -174,9 +179,15 @@ export const skillList = [
   { name: 'Teleportation', description: 'Transporting instantly across distances', type: skillTypes.PSYCHIC }
 ];
 
-export const combatSkills = skillList.filter(skill => skill.type === skillTypes.COMBAT).map(skill => skill.name);
-export const psychicSkills = skillList.filter(skill => skill.type === skillTypes.PSYCHIC).map(skill => skill.name);
-export const anySkills = skillList.filter(skill => skill.type !== skillTypes.PSYCHIC).map(skill => skill.name);
+export const groupedSkills = {
+  [skillTypes.GENERAL]: skillList.filter(skill => skill.type === skillTypes.GENERAL),
+  [skillTypes.COMBAT]: skillList.filter(skill => skill.type === skillTypes.COMBAT),
+  [skillTypes.PSYCHIC]: skillList.filter(skill => skill.type === skillTypes.PSYCHIC)
+};
+
+export const combatSkills = groupedSkills[skillTypes.COMBAT].map(skill => skill.name);
+export const psychicSkills = groupedSkills[skillTypes.PSYCHIC].map(skill => skill.name);
+export const nonPsychicSkills = [...groupedSkills[skillTypes.GENERAL], ...groupedSkills[skillTypes.COMBAT]].map(skill => skill.name);
 export const allSkills = skillList.map(skill => skill.name);
 
 export const specialSkillCategories = {
@@ -189,9 +200,9 @@ export const fociList = [
   {
     name: 'Alert',
     description: 'You\'re keenly aware of your surroundings and hard to surprise.',
+    skills: { name: 'Notice', levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain Notice as a bonus skill']
       },
       {
@@ -202,9 +213,9 @@ export const fociList = [
   {
     name: 'Armsman',
     description: 'You\'re trained in the use of advanced military weapons.',
+    skills: { type: specialSkillCategories.ANY_COMBAT, levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain any combat skill as a bonus']
       },
       {
@@ -215,9 +226,9 @@ export const fociList = [
   {
     name: 'Assassin',
     description: 'You\'re skilled at sudden, lethal attacks on unsuspecting victims.',
+    skills: { name: 'Sneak', levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain Sneak as a bonus skill']
       },
       {
@@ -228,9 +239,9 @@ export const fociList = [
   {
     name: 'Authority',
     description: 'You\'re accustomed to being obeyed and respected.',
+    skills: { name: 'Lead', levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain Lead as a bonus skill']
       },
       {
@@ -241,9 +252,9 @@ export const fociList = [
   {
     name: 'Connected',
     description: 'You have a wide range of useful contacts.',
+    skills: { name: 'Connect', levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain Connect as a bonus skill']
       },
       {
@@ -254,9 +265,9 @@ export const fociList = [
   {
     name: 'Cyberninja',
     description: 'You\'re a master of stealth and electronic intrusion.',
+    skills: { options: ['Program', 'Sneak'], levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain Program or Sneak as a bonus skill']
       },
       {
@@ -267,9 +278,9 @@ export const fociList = [
   {
     name: 'Diplomat',
     description: 'You\'re skilled at negotiation and smoothing over conflicts.',
+    skills: { name: 'Talk', levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain Talk as a bonus skill']
       },
       {
@@ -280,9 +291,9 @@ export const fociList = [
   {
     name: 'Gunslinger',
     description: 'You\'re exceptionally skilled with ranged weapons.',
+    skills: { name: 'Shoot', levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain Shoot as a bonus skill']
       },
       {
@@ -293,9 +304,9 @@ export const fociList = [
   {
     name: 'Hacker',
     description: 'You\'re an expert at breaking computer security.',
+    skills: { name: 'Program', levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain Program as a bonus skill']
       },
       {
@@ -306,9 +317,9 @@ export const fociList = [
   {
     name: 'Healer',
     description: 'You\'re exceptionally skilled at treating injuries and illness.',
+    skills: { name: 'Heal', levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain Heal as a bonus skill']
       },
       {
@@ -319,9 +330,9 @@ export const fociList = [
   {
     name: 'Ironhide',
     description: 'You\'re exceptionally tough and resistant to damage.',
+    skills: { name: 'Exert', levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain Exert as a bonus skill']
       },
       {
@@ -332,9 +343,9 @@ export const fociList = [
   {
     name: 'Polymath',
     description: 'You\'re a quick study in a wide range of skills.',
+    skills: { type: specialSkillCategories.ANY_SKILL, levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain any skill as a bonus']
       },
       {
@@ -345,9 +356,9 @@ export const fociList = [
   {
     name: 'Psychic Training',
     description: 'You have some degree of psychic ability.',
+    skills: { type: specialSkillCategories.ANY_PSYCHIC, levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain any psychic skill as a bonus']
       },
       {
@@ -358,9 +369,9 @@ export const fociList = [
   {
     name: 'Savage Fray',
     description: 'You\'re a whirlwind of destruction in melee combat.',
+    skills: { name: 'Stab', levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain Stab as a bonus skill']
       },
       {
@@ -371,9 +382,9 @@ export const fociList = [
   {
     name: 'Shocking Assault',
     description: 'Your attacks are terrifyingly swift and unexpected.',
+    skills: { type: specialSkillCategories.ANY_COMBAT, levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain any combat skill as a bonus']
       },
       {
@@ -384,9 +395,9 @@ export const fociList = [
   {
     name: 'Sniper',
     description: 'You\'re an expert at long-range marksmanship.',
+    skills: { name: 'Shoot', levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain Shoot as a bonus skill']
       },
       {
@@ -397,9 +408,9 @@ export const fociList = [
   {
     name: 'Star Captain',
     description: 'You\'re a gifted starship pilot and commander.',
+    skills: { options: ['Lead', 'Pilot'], levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain Lead or Pilot as a bonus skill']
       },
       {
@@ -410,9 +421,9 @@ export const fociList = [
   {
     name: 'Starfarer',
     description: 'You\'re experienced with many different alien cultures.',
+    skills: { options: ['Connect', 'Talk'], levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain Connect or Talk as a bonus skill']
       },
       {
@@ -423,9 +434,9 @@ export const fociList = [
   {
     name: 'Tinker',
     description: 'You\'re skilled at improvising and juryrigging equipment.',
+    skills: { name: 'Fix', levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain Fix as a bonus skill']
       },
       {
@@ -436,9 +447,9 @@ export const fociList = [
   {
     name: 'Unarmed Combatant',
     description: 'You\'re a master of hand-to-hand combat.',
+    skills: { name: 'Punch', levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain Punch as a bonus skill']
       },
       {
@@ -449,9 +460,9 @@ export const fociList = [
   {
     name: 'Wanderer',
     description: 'You\'re experienced at survival in hostile environments.',
+    skills: { name: 'Survive', levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain Survive as a bonus skill']
       },
       {
@@ -462,9 +473,9 @@ export const fociList = [
   {
     name: 'Wild Psychic Talent',
     description: 'You have a small but innate psychic ability.',
+    skills: { type: specialSkillCategories.ANY_PSYCHIC, levelsAdded: 1 },
     levels: [
       {
-        skillPoints: 0,
         benefits: ['Gain any psychic skill as a bonus']
       },
       {

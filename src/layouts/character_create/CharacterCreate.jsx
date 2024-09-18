@@ -7,11 +7,10 @@ import {
   classes, 
   skillList, 
   skillTypes,
-  combatSkills,
-  psychicSkills,
-  allSkills,
+  groupedSkills,
   fociList,
-  specialSkillCategories
+  specialSkillCategories,
+  psychicSkills
 } from './CharacterData';
 
 export const CharacterCreate = () => {
@@ -34,10 +33,15 @@ export const CharacterCreate = () => {
   const [freeSkillPoints, setFreeSkillPoints] = useState({});
   const [adventurerClasses, setAdventurerClasses] = useState([]);
 
-  const [skills, setSkills] = useState({
-    administer: -1, connect: -1, exert: -1, fix: -1, heal: -1, know: -1, lead: -1,
-    notice: -1, perform: -1, pilot: -1, program: -1, punch: -1, shoot: -1, sneak: -1,
-    survive: -1, talk: -1, trade: -1, work: -1
+  const [skills, setSkills] = useState(() => {
+    const initialSkills = {};
+    Object.values(groupedSkills).forEach(skillGroup => {
+      skillGroup.forEach(skill => {
+        initialSkills[skill.name.toLowerCase()] = 
+          skill.type === skillTypes.PSYCHIC ? null : -1;
+      });
+    });
+    return initialSkills;
   });
   const [skillPoints, setSkillPoints] = useState(null);
   const [skillPointsMessage, setSkillPointsMessage] = useState('');
@@ -62,6 +66,9 @@ export const CharacterCreate = () => {
 
   const [expandedSkill, setExpandedSkill] = useState(null);
   const [expandedClass, setExpandedClass] = useState(null);
+
+  const [potentialFreeSkills, setPotentialFreeSkills] = useState([]);
+  const [selectedFreeSkill, setSelectedFreeSkill] = useState(null);
 
   const rollDie = () => Math.floor(Math.random() * 6) + 1;
 
@@ -177,28 +184,33 @@ export const CharacterCreate = () => {
     
     const selectedBackground = backgrounds.find(bg => bg.value === newBackground);
     if (selectedBackground) {
-      const backgroundSkills = Array.isArray(selectedBackground.skills) 
+      let backgroundSkills = Array.isArray(selectedBackground.skills) 
         ? selectedBackground.skills 
         : [selectedBackground.skills];
 
+      if (typeof selectedBackground.skills === 'object' && !Array.isArray(selectedBackground.skills)) {
+        backgroundSkills = selectedBackground.skills.options;
+        setPotentialFreeSkills(backgroundSkills);
+        setSelectedFreeSkill(null);
+      } else {
+        setPotentialFreeSkills([]);
+        setSelectedFreeSkill(backgroundSkills[0]);
+        // Automatically set the skill for single-skill backgrounds
+        setSkills(prevSkills => ({
+          ...prevSkills,
+          [backgroundSkills[0].toLowerCase()]: 0
+        }));
+      }
+
       setBackgroundSkill({ name: backgroundSkills[0], level: 0 });
-      
-      // Handle free skills
-      const freeSkillsList = backgroundSkills.filter(skill => 
-        skill !== specialSkillCategories.ANY_COMBAT &&
-        skill !== specialSkillCategories.ANY_PSYCHIC &&
-        skill !== specialSkillCategories.ANY_SKILL
-      );
-      
-      setFreeSkills(freeSkillsList);
-      
-      // Reset additional skills
       setAdditionalSkills([]);
       
-      // Update skills object
+      // Only reset skills related to backgrounds
       const newSkills = { ...skills };
-      freeSkillsList.forEach(skill => {
-        newSkills[skill.toLowerCase()] = -1; // Set to untrained
+      backgroundSkills.forEach(skill => {
+        if (typeof skill === 'string') {
+          newSkills[skill.toLowerCase()] = -1;
+        }
       });
       setSkills(newSkills);
     } else {
@@ -206,7 +218,45 @@ export const CharacterCreate = () => {
       setBackgroundSkill(null);
       setFreeSkills([]);
       setAdditionalSkills([]);
+      setPotentialFreeSkills([]);
+      setSelectedFreeSkill(null);
     }
+  };
+
+  const handleFreeSkillSelection = (skill) => {
+    if (potentialFreeSkills.length > 0) {
+      setSelectedFreeSkill(skill);
+      setSkills(prevSkills => {
+        const newSkills = { ...prevSkills };
+        // Reset previously selected skill
+        if (selectedFreeSkill) {
+          newSkills[selectedFreeSkill.toLowerCase()] = -1;
+        }
+        newSkills[skill.toLowerCase()] = 0;
+        return newSkills;
+      });
+    } else {
+      // Existing logic for handling free skill selection
+      if (!freeSkill) {
+        setFreeSkill({ name: skill, level: 0 });
+        setSkills(prev => ({ ...prev, [skill.toLowerCase()]: 0 }));
+      }
+    }
+  };
+
+  const SkillSelectionComponent = ({ options, onSelect, selectedSkill }) => {
+    return (
+      <select 
+        value={selectedSkill || ''} 
+        onChange={(e) => onSelect(e.target.value)}
+        className="w-full bg-gray-700 text-white rounded px-3 py-2"
+      >
+        <option value="">Select a skill</option>
+        {options.map((skill) => (
+          <option key={skill} value={skill}>{skill}</option>
+        ))}
+      </select>
+    );
   };
 
   useEffect(() => {
@@ -221,7 +271,7 @@ export const CharacterCreate = () => {
         backgroundSkills.forEach(skill => {
           if (skill !== specialSkillCategories.ANY_COMBAT &&
               skill !== specialSkillCategories.ANY_PSYCHIC &&
-              skill !== specialSkillCategories.ANY_SKILL) {
+              skill !== specialSkillCategories.NON_PSYCHIC) {
             newFreeSkillPoints[skill] = 1;
           }
         });
@@ -265,13 +315,6 @@ export const CharacterCreate = () => {
     setSkills(prev => ({ ...prev, [skillName.toLowerCase()]: 1 }));
   };
 
-  const handleFreeSkillSelection = (skill) => {
-    if (!freeSkill) {
-      setFreeSkill({ name: skill, level: 0 });
-      setSkills(prev => ({ ...prev, [skill.toLowerCase()]: 0 }));
-    }
-  };
-
   const handlePsychicSkillSelection = (skill) => {
     const maxPsychicSkills = characterClass === 'psychic' ? 2 : characterClass === 'adventurer' ? 1 : 0;
     if (psychicSkills.length < maxPsychicSkills) {
@@ -281,9 +324,9 @@ export const CharacterCreate = () => {
   };
 
   const calculateSkillPoints = () => {
-    if (!characterClass || !attributes.intelligence.score) {
+    if (!characterClass) {
       setSkillPoints(null);
-      setSkillPointsMessage('Select a class and set Intelligence to calculate skill points.');
+      setSkillPointsMessage('Select a class to calculate skill points.');
       return;
     }
 
@@ -329,7 +372,13 @@ export const CharacterCreate = () => {
 
   const handleSkillLevelChange = (skillName, increment) => {
     const currentLevel = skills[skillName.toLowerCase()];
-    const newLevel = currentLevel + increment;
+    let newLevel;
+
+    if (currentLevel === null && increment > 0) {
+      newLevel = 0;
+    } else {
+      newLevel = (currentLevel || -1) + increment;
+    }
 
     if (newLevel >= -1 && newLevel <= 1) {
       if (increment > 0 && !freeSkills.includes(skillName) && skillPoints <= 0) {
@@ -346,23 +395,39 @@ export const CharacterCreate = () => {
   };
 
   const handleFocusSelection = (focusName) => {
+    const focus = fociList.find(f => f.name === focusName);
+    
     if (selectedFoci.includes(focusName)) {
       setSelectedFoci(selectedFoci.filter(f => f !== focusName));
       // Remove skill impact
-      const focus = fociList.find(f => f.name === focusName);
-      if (focus.skillImpact) {
-        Object.entries(focus.skillImpact).forEach(([skill, value]) => {
-          setSkills(prev => ({...prev, [skill]: Math.max(-1, prev[skill] - value)}));
-        });
+      if (focus.skills) {
+        if (focus.skills.name) {
+          setSkills(prev => ({
+            ...prev, 
+            [focus.skills.name.toLowerCase()]: Math.max(-1, prev[focus.skills.name.toLowerCase()] - focus.skills.levelsAdded)
+          }));
+        } else {
+          // Handle removal of selected skill from options or type
+          // You might need to track which skill was selected for this focus
+        }
       }
     } else if (selectedFoci.length < availableFociCount) {
       setSelectedFoci([...selectedFoci, focusName]);
       // Apply skill impact
-      const focus = fociList.find(f => f.name === focusName);
-      if (focus.skillImpact) {
-        Object.entries(focus.skillImpact).forEach(([skill, value]) => {
-          setSkills(prev => ({...prev, [skill]: prev[skill] + value}));
-        });
+      if (focus.skills) {
+        if (focus.skills.name) {
+          setSkills(prev => ({
+            ...prev, 
+            [focus.skills.name.toLowerCase()]: prev[focus.skills.name.toLowerCase()] + focus.skills.levelsAdded
+          }));
+        } else if (focus.skills.type || focus.skills.options) {
+          // Present user with options to choose from
+          setPotentialFreeSkills({
+            type: focus.skills.type,
+            options: focus.skills.options,
+            levelsAdded: focus.skills.levelsAdded
+          });
+        }
       }
     }
   };
@@ -512,9 +577,6 @@ export const CharacterCreate = () => {
                   <option key={bg.value} value={bg.value}>{bg.label}</option>
                 ))}
               </select>
-              {background && (
-                <p>Background Skill: {freeSkills.join(', ') || 'None'}</p>
-              )}
             </div>
           </div>
         </div>
@@ -535,7 +597,7 @@ export const CharacterCreate = () => {
                   onClick={() => handleClassChange(cls.value)}
                 >
                   <h4 className="text-xl font-bold mb-1">{cls.label}</h4>
-                  <p className="text-sm text-gray-300 mb-2">Prime: {cls.primeAttribute}</p>
+                  <p className="text-sm text-gray-300 mb-2">{cls.primeAttribute}</p>
                   <p className="text-sm">{cls.description}</p>
                 </div>
                 <div 
@@ -596,9 +658,16 @@ export const CharacterCreate = () => {
               ))}
             </div>
             {partialClasses.length === 2 && (
-              <p className="text-sm text-green-400 mt-2">
-                You've selected: {partialClasses.map(cls => classes.find(c => c.value === cls).label).join(' and ')}
-              </p>
+              <div className="text-sm text-green-400 mt-2">
+                <p className="mb-1">Partial Class Benefits:</p>
+                <ul className="list-disc list-inside">
+                  {partialClasses.flatMap(cls => 
+                    classes.find(c => c.value === cls).partialClassBenefits.map((benefit, index) => (
+                      <li key={`${cls}-${index}`}>{benefit}</li>
+                    ))
+                  )}
+                </ul>
+              </div>
             )}
           </div>
         )}
@@ -756,54 +825,110 @@ export const CharacterCreate = () => {
 
       <section className="skills mb-8">
         <h2 className="text-2xl font-semibold mb-4">Skills</h2>
+        
+        <div className="free-skills mb-6">
+          <h3 className="text-xl font-medium mb-3">Free Skills</h3>
+          
+          {/* Background Skills */}
+          {background && (
+            <div className="mb-4">
+              <h4 className="text-lg font-medium mb-2">Background</h4>
+              {potentialFreeSkills.length > 0 ? (
+                <>
+                  <p className="mb-2">Select a skill from your background:</p>
+                  <SkillSelectionComponent />
+                </>
+              ) : (
+                <p>Skill: {selectedFreeSkill || 'None'}</p>
+              )}
+            </div>
+          )}
+          
+          {/* Foci Skills */}
+          {selectedFoci.length > 0 && (
+            <div className="mb-4">
+              <h4 className="text-lg font-medium mb-2">Foci</h4>
+              {selectedFoci.map((focusName) => {
+                const focus = fociList.find(f => f.name === focusName);
+                return (
+                  <div key={focusName} className="mb-2">
+                    <p className="font-medium">{focusName}:</p>
+                    {focus.skills.type || focus.skills.options ? (
+                      <>
+                        <p className="mb-1">Select a skill:</p>
+                        <select
+                          onChange={(e) => handleFocusSkillSelection(focusName, e.target.value)}
+                          className="w-full bg-gray-700 text-white rounded px-3 py-2"
+                        >
+                          <option value="">Select a skill</option>
+                          {(focus.skills.options || getSkillsByType(focus.skills.type)).map((skill) => (
+                            <option key={skill} value={skill}>{skill}</option>
+                          ))}
+                        </select>
+                      </>
+                    ) : (
+                      <p>Skill: {focus.skills.name}</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
         {skillPoints !== null ? (
           <p className="mb-4">Skill Points Remaining: <span className="text-yellow-500 font-bold">{skillPoints}</span></p>
         ) : (
           <p className="mb-4 text-yellow-500">{skillPointsMessage}</p>
         )}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {skillList.map(skill => (
-            <div key={skill.name} className="bg-gray-800 p-3 rounded">
-              <div className="flex items-center justify-between mb-2">
-                <span className={`font-medium ${freeSkills.includes(skill.name) ? 'text-yellow-500' : ''}`}>
-                  {skill.name}
-                  {freeSkills.includes(skill.name) && ' (Free)'}
-                </span>
-                <div className="flex items-center space-x-2">
-                  <button
-                    type="button"
-                    onClick={() => handleSkillLevelChange(skill.name, -1)}
-                    className="w-6 h-6 bg-red-500 text-white rounded flex items-center justify-center"
-                    disabled={skills[skill.name.toLowerCase()] === -1 || freeSkills.includes(skill.name)}
-                  >
-                    -
-                  </button>
-                  <span className="w-8 text-center bg-gray-700">
-                    {skills[skill.name.toLowerCase()]}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleSkillLevelChange(skill.name, 1)}
-                    className="w-6 h-6 bg-green-500 text-white rounded flex items-center justify-center"
-                    disabled={skills[skill.name.toLowerCase()] === 1 || skillPoints === 0}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-              <button 
-                type="button"
-                onClick={() => setExpandedSkill(expandedSkill === skill.name ? null : skill.name)}
-                className="text-sm text-gray-400 hover:text-white focus:outline-none"
-              >
-                {expandedSkill === skill.name ? 'Hide description' : 'Show description'}
-              </button>
-              {expandedSkill === skill.name && (
-                <p className="text-sm text-gray-400 mt-2">{skill.description}</p>
-              )}
+        
+        {Object.entries(groupedSkills).map(([type, skillGroup]) => (
+          <div key={type} className="mb-6">
+            <h3 className="text-xl font-semibold mb-3 capitalize">{type} Skills</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {skillGroup.map(skill => {
+                const skillName = skill.name.toLowerCase();
+                const isPsychicSkill = psychicSkills.includes(skill.name);
+                const showSkill = !isPsychicSkill || isPsychicSkillsEligible();
+
+                return showSkill && (
+                  <div key={skill.name} className="bg-gray-800 p-3 rounded">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={`font-medium ${freeSkills.includes(skill.name) ? 'text-yellow-500' : ''}`}>
+                        {skill.name}
+                        {freeSkills.includes(skill.name) && ' (Free)'}
+                      </span>
+                      <div className="flex items-center space-x-2">
+                        {skills[skillName] !== null && skills[skillName] >= 0 && (
+                          <button
+                            type="button"
+                            onClick={() => handleSkillLevelChange(skill.name, -1)}
+                            className="w-6 h-6 bg-red-500 text-white rounded flex items-center justify-center"
+                            disabled={skills[skillName] === -1 || freeSkills.includes(skill.name)}
+                          >
+                            -
+                          </button>
+                        )}
+                        <span className="w-8 text-center bg-gray-700">
+                          {skills[skillName] === null ? '-' : skills[skillName]}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleSkillLevelChange(skill.name, 1)}
+                          className="w-6 h-6 bg-green-500 text-white rounded flex items-center justify-center"
+                          disabled={skills[skillName] === 1 || skillPoints === 0}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-400 mt-2">{skill.description}</p>
+                  </div>
+                );
+              })}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </section>
 
       <button 
