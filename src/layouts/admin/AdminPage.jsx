@@ -2,14 +2,26 @@ import { ContextualDashboardLayout } from "../ContextualDashboardLayout";
 import { GamesSelectionPanel } from "./GameSelectionPanel";
 import { EventClockManagementPanel } from "./EventClockManagementPanel";
 import { ItemManagementPanel } from "./ItemManagementPanel";
-import { useGames } from "../../hooks/useGames";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchGames } from "../../api/games";
 
 export const AdminPage = () => {
-  const [games] = useGames();
+  // TODO add a check for the uesr's games here instead of ALL games.
+  const [games, setGames] = useState([]);
+  const fetchGamesResult = useQuery({
+    queryKey: ["games"],
+    queryFn: fetchGames,
+  });
+
+  useEffect(() => {
+    if (fetchGamesResult.data) {
+      setGames(fetchGamesResult.data);
+    }
+  }, [fetchGamesResult.data]);
 
   const actionButtons = [];
 
-  // Fetch character from id (TODO)
   const navigationStates = {
     Game: "game",
     EventClocks: "event-clocks",

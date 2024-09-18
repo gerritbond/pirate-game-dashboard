@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export const FormInput = ({ label, value, onChange }) => {
   return (
     <div className="flex flex-col p-2">
@@ -56,6 +58,19 @@ export const SubmitButton = ({ label, onClick }) => {
       >
         {label}
       </button>
+    </div>
+  );
+};
+
+export const LinkButton = ({ label, to }) => {
+  return (
+    <div className="">
+      <Link
+        className="border-2 border-yellow-500 bg-gray-800 text-yellow-500 font-bold px-4 py-2"
+        to={to}
+      >
+        {label}
+      </Link>
     </div>
   );
 };

@@ -2,7 +2,6 @@ import { PageableCardsGrid } from "../../components/PageableCardsGrid";
 import { BsTrash } from "react-icons/bs";
 
 export const GamesSelectionPanel = ({ games }) => {
-  console.log(games);
   const deleteGameModal = () =>
     console.log(
       "TODO, Implement delete game modal confirmation and operations"

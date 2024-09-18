@@ -111,7 +111,7 @@ export const PageableCardsGrid = ({
 
     return [chunks, filler];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [entities]);
 
   const [currentPage, setCurrentPage] = useState(0);
 

@@ -6,6 +6,7 @@ import { GameForm } from "./GameForm";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import GameContext from "../../contexts/GameContext";
+import { GameSummary } from "./GameSummary";
 
 export const PlayerManagementPanel = () => {
   return <div>Player Management Panel</div>;
@@ -26,7 +27,6 @@ export const GameDetail = ({
   startingPanel = GameDetailNavigationStates.Game,
 }) => {
   const { gameId } = useParams();
-  const [, setGame] = useContext(GameContext);
   const navigate = useNavigate();
 
   const { data: game, isLoading } = useQuery({
@@ -69,6 +69,9 @@ export const GameDetail = ({
         navigate("/admin");
         return <div></div>;
       case GameDetailNavigationStates.Game:
+        return <GameSummary game={game} />;
+      case GameDetailNavigationStates.EditGame:
+        return <GameForm mode="edit" game={game} />;
       default:
         return <GameForm mode="edit" game={game} />;
     }

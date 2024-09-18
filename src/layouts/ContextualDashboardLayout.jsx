@@ -95,7 +95,9 @@ export const ContextualDashboardLayout = ({
   const contextualPanelState = useState(
     startingPanel || contextualNavigation[0]?.state
   );
-  const [showRoutingButtons, setShowRoutingButtons] = useState(true);
+  const [showRoutingButtons, setShowRoutingButtons] = useState(
+    Object.keys(contextualNavigation).length > 0 ? false : true
+  );
 
   return (
     <div className="flex flex-grow">

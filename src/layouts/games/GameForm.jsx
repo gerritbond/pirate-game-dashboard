@@ -8,6 +8,7 @@ import {
   SubmitButton,
 } from "../../components/FormElements";
 import GameContext from "../../contexts/GameContext";
+import { useEffect } from "react";
 
 export const GameForm = ({ mode, game }) => {
   const [, setGameContext] = useContext(GameContext);
@@ -20,6 +21,16 @@ export const GameForm = ({ mode, game }) => {
     id: "",
     ...game,
   });
+
+  useEffect(() => {
+    if (game !== undefined) {
+      setFormData({
+        name: game.name,
+        description: game.description,
+        id: game.id,
+      });
+    }
+  }, [game]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
